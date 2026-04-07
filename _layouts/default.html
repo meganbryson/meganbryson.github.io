@@ -19,46 +19,16 @@
         top: 30%;
         left: 50%;
         transform: translate(-50%, -50%);
-        height: 25vh;
+        height: 25vh; /* responsive */
         z-index: 10;
     }
 
-    /* Base image style */
+    /* All other images */
     .img {
         position: absolute;
-        transform: translate(-50%, -50%) scale(var(--scale));
+        transform: translate(-50%, -50%) scale(var(--scale, 1));
         transform-origin: center;
     }
-
-    /* Responsive base scale */
-    :root {
-        --base-scale: calc(min(100vw, 100vh) / 1200);
-    }
-
-    /* Size tiers (relative to original image size) */
-    .small  { --scale: calc(var(--base-scale) * 0.01); }
-    .medium { --scale: calc(var(--base-scale) * 0.02); }
-    .large  { --scale: calc(var(--base-scale) * 0.03); }
-
-    /* 📍 POSITIONING (edit these) */
-
-    #aboutme   { top: 10%; left: 20%; }
-    #contact   { top: 10%; left: 80%; }
-    #imade     { top: 55%; left: 85%; }
-    #resumecar { top: 75%; left: 20%; }
-
-    #chart     { top: 85%; left: 70%; }
-    #drivers   { top: 65%; left: 5%; }
-    #evn       { top: 20%; left: 5%; }
-    #linkedin  { top: 40%; left: 90%; }
-    #map       { top: 80%; left: 50%; }
-    #metal     { top: 50%; left: 10%; }
-    #pepto     { top: 15%; left: 60%; }
-    #raccoon   { top: 70%; left: 85%; }
-    #tims      { top: 90%; left: 30%; }
-    #toronto   { top: 35%; left: 75%; }
-    #ttc       { top: 60%; left: 50%; }
-
 </style>
 </head>
 
@@ -68,22 +38,22 @@
 <img src="assets/images/megan.png" class="center">
 
 <!-- Surrounding images -->
-<img src="assets/images/aboutme.png" class="img medium" id="aboutme">
-<img src="assets/images/contact.png" class="img large" id="contact">
-<img src="assets/images/imade.png" class="img medium" id="imade">
-<img src="assets/images/resumecar.png" class="img large" id="resumecar">
+<img src="assets/images/aboutme.png" class="img" style="--scale: 0.3; top: 10%; left: 20%;" id="aboutme">
+<img src="assets/images/contact.png" class="img" style="--scale: 0.35; top: 10%; left: 80%;" id="contact">
+<img src="assets/images/imade.png" class="img" style="--scale: 0.3; top: 55%; left: 85%;" id="imade">
+<img src="assets/images/resumecar.png" class="img" style="--scale: 0.35; top: 75%; left: 20%;" id="resumecar">
 
-<img src="assets/images/chart.png" class="img small" id="chart">
-<img src="assets/images/drivers.png" class="img small" id="drivers">
-<img src="assets/images/evn.png" class="img small" id="evn">
-<img src="assets/images/linkedin.png" class="img small" id="linkedin">
-<img src="assets/images/map.png" class="img small" id="map">
-<img src="assets/images/metal.png" class="img small" id="metal">
-<img src="assets/images/pepto.png" class="img small" id="pepto">
-<img src="assets/images/raccoon.png" class="img small" id="raccoon">
-<img src="assets/images/tims.png" class="img small" id="tims">
-<img src="assets/images/toronto.png" class="img small" id="toronto">
-<img src="assets/images/ttc.png" class="img small" id="ttc">
+<img src="assets/images/chart.png" class="img" style="--scale: 0.25; top: 85%; left: 70%;" id="chart">
+<img src="assets/images/drivers.png" class="img" style="--scale: 0.3; top: 65%; left: 5%;" id="drivers">
+<img src="assets/images/evn.png" class="img" style="--scale: 0.25; top: 20%; left: 5%;" id="evn">
+<img src="assets/images/linkedin.png" class="img" style="--scale: 0.3; top: 40%; left: 90%;" id="linkedin">
+<img src="assets/images/map.png" class="img" style="--scale: 0.25; top: 80%; left: 50%;" id="map">
+<img src="assets/images/metal.png" class="img" style="--scale: 0.3; top: 50%; left: 10%;" id="metal">
+<img src="assets/images/pepto.png" class="img" style="--scale: 0.25; top: 15%; left: 60%;" id="pepto">
+<img src="assets/images/raccoon.png" class="img" style="--scale: 0.25; top: 70%; left: 85%;" id="raccoon">
+<img src="assets/images/tims.png" class="img" style="--scale: 0.25; top: 90%; left: 30%;" id="tims">
+<img src="assets/images/toronto.png" class="img" style="--scale: 0.25; top: 35%; left: 75%;" id="toronto">
+<img src="assets/images/ttc.png" class="img" style="--scale: 0.25; top: 60%; left: 50%;" id="ttc">
 
 </body>
 </html>
