@@ -19,24 +19,30 @@
         top: 30%;
         left: 50%;
         transform: translate(-50%, -50%);
-        height: 25vh; /* responsive */
+        height: 25vh;
         z-index: 10;
     }
 
-    /* All surrounding images */
+    /* Base image style */
     .img {
         position: absolute;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%) scale(var(--scale));
+        transform-origin: center;
     }
 
-    /* Example scaling (responsive) */
-    .small { width: 10vw; }
-    .medium { width: 14vw; }
-    .large { width: 18vw; }
+    /* Responsive base scale */
+    :root {
+        --base-scale: calc(min(100vw, 100vh) / 1200);
+    }
 
-    /* 📍 POSITIONING (edit these!) */
+    /* Size tiers (relative to original image size) */
+    .small  { --scale: calc(var(--base-scale) * 0.6); }
+    .medium { --scale: calc(var(--base-scale) * 1.0); }
+    .large  { --scale: calc(var(--base-scale) * 1.4); }
 
-    #aboutme   { top: 15%; left: 20%; }
+    /* 📍 POSITIONING (edit these) */
+
+    #aboutme   { top: 10%; left: 20%; }
     #contact   { top: 10%; left: 80%; }
     #imade     { top: 55%; left: 85%; }
     #resumecar { top: 75%; left: 20%; }
@@ -47,7 +53,7 @@
     #linkedin  { top: 40%; left: 90%; }
     #map       { top: 80%; left: 50%; }
     #metal     { top: 50%; left: 10%; }
-    #pepto     { top: 15%; left: 70%; }
+    #pepto     { top: 15%; left: 60%; }
     #raccoon   { top: 70%; left: 85%; }
     #tims      { top: 90%; left: 30%; }
     #toronto   { top: 35%; left: 75%; }
@@ -63,9 +69,9 @@
 
 <!-- Surrounding images -->
 <img src="assets/images/aboutme.png" class="img medium" id="aboutme">
-<img src="assets/images/contact.png" class="img medium" id="contact">
+<img src="assets/images/contact.png" class="img large" id="contact">
 <img src="assets/images/imade.png" class="img medium" id="imade">
-<img src="assets/images/resumecar.png" class="img medium" id="resumecar">
+<img src="assets/images/resumecar.png" class="img large" id="resumecar">
 
 <img src="assets/images/chart.png" class="img small" id="chart">
 <img src="assets/images/drivers.png" class="img small" id="drivers">
