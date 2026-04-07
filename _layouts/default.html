@@ -13,53 +13,69 @@
         overflow: hidden;
     }
 
-    /* Center image */
     .center-image {
         position: absolute;
         top: 30%;
         left: 50%;
-        height: 220px;
         transform: translate(-50%, -50%);
         z-index: 10;
+        pointer-events: none;
     }
 
     .image {
         position: absolute;
+        transform-origin: top left;
     }
 </style>
 </head>
 
 <body>
 
-<img src="assets/images/megan.png" class="center-image">
+<img src="assets/images/megan.png" class="center-image" id="center">
 
 <script>
 const images = [
-    { src: 'assets/images/aboutme.png', scale: 0.3 },
-    { src: 'assets/images/chart.png', scale: 0.2 },
-    { src: 'assets/images/contact.png', scale: 0.3 },
-    { src: 'assets/images/drivers.png', scale: 0.3},
-    { src: 'assets/images/evn.png', scale: 0.2 },
-    { src: 'assets/images/imade.png', scale: 0.3 },
-    { src: 'assets/images/linkedin.png', scale: 0.3 },
-    { src: 'assets/images/map.png', scale: 0.2 },
-    { src: 'assets/images/metal.png', scale: 0.3 },
-    { src: 'assets/images/pepto.png', scale: 0.2 },
-    { src: 'assets/images/raccoon.png', scale: 0.2 },
-    { src: 'assets/images/resumecar.png', scale: 0.3 },
-    { src: 'assets/images/tims.png', scale: 0.2},
-    { src: 'assets/images/toronto.png', scale: 0.2 },
-    { src: 'assets/images/ttc.png', scale: 0.2 }
+    { src: 'assets/images/aboutme.png', importance: 1.2 },
+    { src: 'assets/images/chart.png', importance: 0.8 },
+    { src: 'assets/images/contact.png', importance: 1.2 },
+    { src: 'assets/images/drivers.png', importance: 1.0},
+    { src: 'assets/images/evn.png', importance: 0.8 },
+    { src: 'assets/images/imade.png', importance: 1.2 },
+    { src: 'assets/images/linkedin.png', importance: 1.0 },
+    { src: 'assets/images/map.png', importance: 0.8 },
+    { src: 'assets/images/metal.png', importance: 1.0 },
+    { src: 'assets/images/pepto.png', importance: 0.8 },
+    { src: 'assets/images/raccoon.png', importance: 0.8 },
+    { src: 'assets/images/resumecar.png', importance: 1.2 },
+    { src: 'assets/images/tims.png', importance: 0.8},
+    { src: 'assets/images/toronto.png', importance: 0.8 },
+    { src: 'assets/images/ttc.png', importance: 0.8 }
 ];
 
 let placedImages = [];
 
 function layoutImages() {
-    // clear old ones
     placedImages.forEach(img => img.remove());
     placedImages = [];
 
+    const centerImg = document.getElementById('center');
+
+    // scale center image responsively
+    const centerScale = Math.min(window.innerWidth, window.innerHeight) / 900;
+    centerImg.style.height = (220 * centerScale) + 'px';
+
+    const centerRect = centerImg.getBoundingClientRect();
+
+    // create no-go zone (padding around center)
+    const noGo = {
+        left: centerRect.left - 40,
+        right: centerRect.right + 40,
+        top: centerRect.top - 40,
+        bottom: centerRect.bottom + 40
+    };
+
     const padding = 20;
+
     const cols = Math.ceil(Math.sqrt(images.length));
     const rows = Math.ceil(images.length / cols);
 
@@ -74,39 +90,70 @@ function layoutImages() {
         img.onload = function () {
             document.body.appendChild(img);
 
-            img.style.transform = `scale(${item.scale})`;
-            img.style.transformOrigin = 'top left';
+            // responsive scaling based on screen size + importance
+            const baseScale = Math.min(window.innerWidth, window.innerHeight) / 1200;
+            const scale = baseScale * item.importance;
+
+            img.style.transform = `scale(${scale})`;
+
+            const scaledWidth = img.naturalWidth * scale;
+            const scaledHeight = img.naturalHeight * scale;
 
             const col = index % cols;
             const row = Math.floor(index / cols);
 
-            const scaledWidth = img.naturalWidth * item.scale;
-            const scaledHeight = img.naturalHeight * item.scale;
+            let attempts = 0;
+            let placed = false;
 
-            // base position (grid)
-            let x = col * cellWidth + padding;
-            let y = row * cellHeight + padding;
+            while (!placed && attempts < 50) {
+                let x = col * cellWidth + padding;
+                let y = row * cellHeight + padding;
 
-            // add jitter so it feels random
-            const jitterX = (cellWidth - scaledWidth - padding * 2) * Math.random();
-            const jitterY = (cellHeight - scaledHeight - padding * 2) * Math.random();
+                // jitter
+                x += Math.random() * (cellWidth - scaledWidth - padding * 2);
+                y += Math.random() * (cellHeight - scaledHeight - padding * 2);
 
-            x += Math.max(0, jitterX);
-            y += Math.max(0, jitterY);
+                const rect = {
+                    left: x,
+                    right: x + scaledWidth,
+                    top: y,
+                    bottom: y + scaledHeight
+                };
 
-            img.style.left = x + 'px';
-            img.style.top = y + 'px';
+                if (!intersects(rect, noGo)) {
+                    img.style.left = x + 'px';
+                    img.style.top = y + 'px';
+                    placed = true;
+                }
+
+                attempts++;
+            }
+
+            // fallback if can't find perfect spot
+            if (!placed) {
+                img.style.left = (col * cellWidth + padding) + 'px';
+                img.style.top = (row * cellHeight + padding) + 'px';
+            }
 
             placedImages.push(img);
         };
     });
 }
 
-// re-layout on resize (important for mobile)
+function intersects(a, b) {
+    return !(
+        a.right < b.left ||
+        a.left > b.right ||
+        a.bottom < b.top ||
+        a.top > b.bottom
+    );
+}
+
+// debounce resize
 let resizeTimeout;
 window.addEventListener('resize', () => {
     clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(layoutImages, 200);
+    resizeTimeout = setTimeout(layoutImages, 150);
 });
 
 document.addEventListener('DOMContentLoaded', layoutImages);
