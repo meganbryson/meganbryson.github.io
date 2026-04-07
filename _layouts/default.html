@@ -1,31 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>megan bryson</title>
-    <style>
-        body {
-            position: relative;
-            height: 100vh;
-            overflow: hidden;
-        }
-        .image {
-            position: absolute;
-            transition: all 0.5s;
-            height: 50px;
-        }
-    </style>
-</head>
-<body>
-    <div style="display: grid; place-items: center; height: 100vh;">
-  <img src="assets/images/megan.png">
-    </div>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>megan bryson</title>
 
-<script src="script.js"></script>
+<style>
+    body {
+        position: relative;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    /* Center image */
+    .center-image {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+
+    /* Floating images */
+    .image {
+        position: absolute;
+        height: 50px;
+    }
+</style>
+</head>
+
+<body>
+
+<img src="assets/images/megan.png" class="center-image">
+
 <script>
-    const images = [
+const images = [
     'assets/images/aboutme.png',
     'assets/images/chart.png',
     'assets/images/contact.png',
@@ -41,51 +51,70 @@
     'assets/images/tims.png',
     'assets/images/toronto.png',
     'assets/images/ttc.png'
-    ];
+];
 
-    function placeImagesRandomly() {
-        const body = document.body;
-        images.forEach(src => {
-            const img = document.createElement('img');
-            img.src = src;
-            img.classList.add('image');
-            img.onload = function() {
-                let placed = false;
-                while (!placed) {
-                    const x = Math.floor(Math.random() * (body.clientWidth - img.width));
-                    const y = Math.floor(Math.random() * (body.clientHeight - img.height));
-                    img.style.left = x + 'px';
-                    img.style.top = y + 'px';
-                    if (!collides(img)) {
-                        body.appendChild(img);
-                        placed = true;
-                    }
-                }
-            };
-        });
-    }
+function placeImagesRandomly() {
+    const body = document.body;
 
-    // Check for collisions
-    function collides(img) {
-        const imgRect = img.getBoundingClientRect();
-        const images = document.querySelectorAll('.image');
-        for (const otherImg of images) {
-            if (otherImg !== img) {
-                const otherRect = otherImg.getBoundingClientRect();
-                if (
-                    imgRect.x < otherRect.x + otherRect.width &&
-                    imgRect.x + imgRect.width > otherRect.x &&
-                    imgRect.y < otherRect.y + otherRect.height &&
-                    imgRect.y + imgRect.height > otherRect.y
-                ) {
-                    return true;
+    images.forEach(src => {
+        const img = document.createElement('img');
+        img.src = src;
+        img.classList.add('image');
+
+        img.onload = function () {
+            body.appendChild(img); // MUST append first
+
+            let attempts = 0;
+            let placed = false;
+
+            while (!placed && attempts < 100) {
+                const x = Math.random() * (window.innerWidth - img.width);
+                const y = Math.random() * (window.innerHeight - img.height);
+
+                img.style.left = x + 'px';
+                img.style.top = y + 'px';
+
+                if (!collides(img)) {
+                    placed = true;
                 }
+
+                attempts++;
             }
-        }
-        return false;
-    }
 
-    document.addEventListener('DOMContentLoaded', placeImagesRandomly);
+            // If we fail, just leave it somewhere
+            if (!placed) {
+                img.style.left = Math.random() * (window.innerWidth - img.width) + 'px';
+                img.style.top = Math.random() * (window.innerHeight - img.height) + 'px';
+            }
+        };
+    });
+}
+
+function collides(img) {
+    const rect1 = img.getBoundingClientRect();
+
+    // Check against ALL images including center
+    const allImages = document.querySelectorAll('img');
+
+    for (const other of allImages) {
+        if (other === img) continue;
+
+        const rect2 = other.getBoundingClientRect();
+
+        if (
+            rect1.left < rect2.right &&
+            rect1.right > rect2.left &&
+            rect1.top < rect2.bottom &&
+            rect1.bottom > rect2.top
+        ) {
+            return true;
+        }
+    }
+    return false;
+}
+
+document.addEventListener('DOMContentLoaded', placeImagesRandomly);
 </script>
+
 </body>
 </html>
