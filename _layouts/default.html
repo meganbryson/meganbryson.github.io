@@ -11,7 +11,7 @@
         height: 100vh;
         margin: 0;
         overflow: hidden;
-        background: transparent;
+        background: transparent; /* preserve transparency */
     }
 
     /* Center image */
@@ -24,7 +24,7 @@
         z-index: 50; /* middle layer */
     }
 
-    /* Background images (placed first) */
+    /* Background images */
     .bg-img {
         position: absolute;
         transform: translate(-50%, -50%) scale(var(--scale, 1));
@@ -32,7 +32,7 @@
         z-index: 10;
     }
 
-    /* Foreground images (placed last) */
+    /* Foreground images */
     .fg-img {
         position: absolute;
         transform: translate(-50%, -50%) scale(var(--scale, 1));
@@ -40,11 +40,21 @@
         z-index: 100;
     }
 
-    /* All other images default */
+    /* Other images */
     .img {
         position: absolute;
         transform: translate(-50%, -50%) scale(var(--scale, 1));
         transform-origin: center;
+    }
+
+    /* Mobile scaling: reduce all images by 30% */
+    @media (max-width: 768px) {
+        .center,
+        .bg-img,
+        .fg-img,
+        .img {
+            transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 0.7));
+        }
     }
 </style>
 </head>
@@ -64,7 +74,7 @@
 <img src="assets/images/imade.png" class="fg-img" style="--scale: 0.3; top: 55%; left: 75%;" id="imade">
 <img src="assets/images/resumecar.png" class="fg-img" style="--scale: 0.35; top: 90%; left: 15%;" id="resumecar">
 
-<!-- Other images (normal layering) -->
+<!-- Other images -->
 <img src="assets/images/chart.png" class="img" style="--scale: 0.25; top: 85%; left: 70%;" id="chart">
 <img src="assets/images/drivers.png" class="img" style="--scale: 0.3; top: 65%; left: 25%;" id="drivers">
 <img src="assets/images/evn.png" class="img" style="--scale: 0.25; top: 15%; left: 10%;" id="evn">
