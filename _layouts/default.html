@@ -34,116 +34,82 @@
 <img src="assets/images/megan.png" class="center-image">
 
 <script>
-
-// ✅ STATIC IMAGES (edit x/y here)
-const staticImages = [
-    { src: 'assets/images/contact.png', scale: 0.3, x: 100, y: 100 },
-    { src: 'assets/images/resumecar.png', scale: 0.3, x: 300, y: 200 },
-    { src: 'assets/images/imade.png', scale: 0.3, x: 800, y: 700 },
-    { src: 'assets/images/aboutme.png', scale: 0.3, x: 500, y: 100}
-];
-
-// 🎲 RANDOM IMAGES (everything else)
 const images = [
+    { src: 'assets/images/aboutme.png', scale: 0.3 },
     { src: 'assets/images/chart.png', scale: 0.2 },
+    { src: 'assets/images/contact.png', scale: 0.3 },
     { src: 'assets/images/drivers.png', scale: 0.3},
     { src: 'assets/images/evn.png', scale: 0.2 },
+    { src: 'assets/images/imade.png', scale: 0.3 },
     { src: 'assets/images/linkedin.png', scale: 0.3 },
     { src: 'assets/images/map.png', scale: 0.2 },
     { src: 'assets/images/metal.png', scale: 0.3 },
     { src: 'assets/images/pepto.png', scale: 0.2 },
     { src: 'assets/images/raccoon.png', scale: 0.2 },
+    { src: 'assets/images/resumecar.png', scale: 0.3 },
     { src: 'assets/images/tims.png', scale: 0.2},
     { src: 'assets/images/toronto.png', scale: 0.2 },
     { src: 'assets/images/ttc.png', scale: 0.2 }
 ];
 
-// ✅ Place static images
-function placeStaticImages() {
-    const body = document.body;
+let placedImages = [];
 
-    staticImages.forEach(item => {
+function layoutImages() {
+    // clear old ones
+    placedImages.forEach(img => img.remove());
+    placedImages = [];
+
+    const padding = 20;
+    const cols = Math.ceil(Math.sqrt(images.length));
+    const rows = Math.ceil(images.length / cols);
+
+    const cellWidth = window.innerWidth / cols;
+    const cellHeight = window.innerHeight / rows;
+
+    images.forEach((item, index) => {
         const img = document.createElement('img');
         img.src = item.src;
         img.classList.add('image');
 
         img.onload = function () {
-            body.appendChild(img);
+            document.body.appendChild(img);
 
             img.style.transform = `scale(${item.scale})`;
             img.style.transformOrigin = 'top left';
 
-            img.style.left = item.x + 'px';
-            img.style.top = item.y + 'px';
-        };
-    });
-}
-
-// 🎲 Place random images
-function placeImagesRandomly() {
-    const body = document.body;
-
-    images.forEach(item => {
-        const img = document.createElement('img');
-        img.src = item.src;
-        img.classList.add('image');
-
-        img.onload = function () {
-            body.appendChild(img);
-
-            img.style.transform = `scale(${item.scale})`;
-            img.style.transformOrigin = 'top left';
-
-            let attempts = 0;
-            let placed = false;
+            const col = index % cols;
+            const row = Math.floor(index / cols);
 
             const scaledWidth = img.naturalWidth * item.scale;
             const scaledHeight = img.naturalHeight * item.scale;
 
-            while (!placed && attempts < 100) {
-                const x = Math.random() * (window.innerWidth - scaledWidth);
-                const y = Math.random() * (window.innerHeight - scaledHeight);
+            // base position (grid)
+            let x = col * cellWidth + padding;
+            let y = row * cellHeight + padding;
 
-                img.style.left = x + 'px';
-                img.style.top = y + 'px';
+            // add jitter so it feels random
+            const jitterX = (cellWidth - scaledWidth - padding * 2) * Math.random();
+            const jitterY = (cellHeight - scaledHeight - padding * 2) * Math.random();
 
-                if (!collides(img)) {
-                    placed = true;
-                }
+            x += Math.max(0, jitterX);
+            y += Math.max(0, jitterY);
 
-                attempts++;
-            }
+            img.style.left = x + 'px';
+            img.style.top = y + 'px';
+
+            placedImages.push(img);
         };
     });
 }
 
-// collision detection (includes center + static)
-function collides(img) {
-    const rect1 = img.getBoundingClientRect();
-    const allImages = document.querySelectorAll('img');
-
-    for (const other of allImages) {
-        if (other === img) continue;
-
-        const rect2 = other.getBoundingClientRect();
-
-        if (
-            rect1.left < rect2.right &&
-            rect1.right > rect2.left &&
-            rect1.top < rect2.bottom &&
-            rect1.bottom > rect2.top
-        ) {
-            return true;
-        }
-    }
-    return false;
-}
-
-// run both
-document.addEventListener('DOMContentLoaded', () => {
-    placeStaticImages();
-    placeImagesRandomly();
+// re-layout on resize (important for mobile)
+let resizeTimeout;
+window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(layoutImages, 200);
 });
+
+document.addEventListener('DOMContentLoaded', layoutImages);
 </script>
 
 </body>
