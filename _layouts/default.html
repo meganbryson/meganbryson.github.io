@@ -1,20 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>megan bryson</title>
+
+<style>
+    body {
+        position: relative;
+        height: 100vh;
+        margin: 0;
+        overflow: hidden;
+    }
+
+    /* Center image */
+    .center-image {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 10;
+    }
+
+    /* Floating images */
+    .image {
+        position: absolute;
+        height: 50px;
+    }
+</style>
+</head>
+
+<body>
+
+<img src="assets/images/megan.png" class="center-image">
+
 <script>
 const images = [
-    { src: 'assets/images/aboutme.png', scale: 0.1 },
-    { src: 'assets/images/chart.png', scale: 0.1 },
-    { src: 'assets/images/contact.png', scale: 0.1 },
-    { src: 'assets/images/drivers.png', scale: 0.1 },
-    { src: 'assets/images/evn.png', scale: 0.1 },
-    { src: 'assets/images/imade.png', scale: 0.1 },
-    { src: 'assets/images/linkedin.png', scale: 0.1 },
-    { src: 'assets/images/map.png', scale: 0.1 },
-    { src: 'assets/images/metal.png', scale: 0.1 },
-    { src: 'assets/images/pepto.png', scale: 0.1 },
-    { src: 'assets/images/raccoon.png', scale: 0.1 },
-    { src: 'assets/images/resumecar.png', scale: 0.1 },
-    { src: 'assets/images/tims.png', scale: 0.1 },
-    { src: 'assets/images/toronto.png', scale: 0.1 },
-    { src: 'assets/images/ttc.png', scale: 0.1 }
+    { src: 'assets/images/aboutme.png', scale: 0.4 },
+    { src: 'assets/images/chart.png', scale: 0.3 },
+    { src: 'assets/images/contact.png', scale: 0.5 },
+    { src: 'assets/images/drivers.png', scale: 0.3 },
+    { src: 'assets/images/evn.png', scale: 0.35 },
+    { src: 'assets/images/imade.png', scale: 0.45 },
+    { src: 'assets/images/linkedin.png', scale: 0.25 },
+    { src: 'assets/images/map.png', scale: 0.4 },
+    { src: 'assets/images/metal.png', scale: 0.3 },
+    { src: 'assets/images/pepto.png', scale: 0.35 },
+    { src: 'assets/images/raccoon.png', scale: 0.5 },
+    { src: 'assets/images/resumecar.png', scale: 0.4 },
+    { src: 'assets/images/tims.png', scale: 0.3 },
+    { src: 'assets/images/toronto.png', scale: 0.4 },
+    { src: 'assets/images/ttc.png', scale: 0.35 }
 ];
 
 function placeImagesRandomly() {
@@ -78,3 +114,6 @@ function collides(img) {
 
 document.addEventListener('DOMContentLoaded', placeImagesRandomly);
 </script>
+
+</body>
+</html>
