@@ -1,75 +1,46 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>megan bryson</title>
-
-<style>
-    body {
-        position: relative;
-        height: 100vh;
-        margin: 0;
-        overflow: hidden;
-    }
-
-    /* Center image */
-    .center-image {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 10;
-    }
-
-    /* Floating images */
-    .image {
-        position: absolute;
-        height: 50px;
-    }
-</style>
-</head>
-
-<body>
-
-<img src="assets/images/megan.png" class="center-image">
-
 <script>
 const images = [
-    'assets/images/aboutme.png',
-    'assets/images/chart.png',
-    'assets/images/contact.png',
-    'assets/images/drivers.png',
-    'assets/images/evn.png',
-    'assets/images/imade.png',
-    'assets/images/linkedin.png',
-    'assets/images/map.png',
-    'assets/images/metal.png',
-    'assets/images/pepto.png',
-    'assets/images/raccoon.png',
-    'assets/images/resumecar.png',
-    'assets/images/tims.png',
-    'assets/images/toronto.png',
-    'assets/images/ttc.png'
+    { src: 'assets/images/aboutme.png', scale: 0.4 },
+    { src: 'assets/images/chart.png', scale: 0.3 },
+    { src: 'assets/images/contact.png', scale: 0.5 },
+    { src: 'assets/images/drivers.png', scale: 0.3 },
+    { src: 'assets/images/evn.png', scale: 0.35 },
+    { src: 'assets/images/imade.png', scale: 0.45 },
+    { src: 'assets/images/linkedin.png', scale: 0.25 },
+    { src: 'assets/images/map.png', scale: 0.4 },
+    { src: 'assets/images/metal.png', scale: 0.3 },
+    { src: 'assets/images/pepto.png', scale: 0.35 },
+    { src: 'assets/images/raccoon.png', scale: 0.5 },
+    { src: 'assets/images/resumecar.png', scale: 0.4 },
+    { src: 'assets/images/tims.png', scale: 0.3 },
+    { src: 'assets/images/toronto.png', scale: 0.4 },
+    { src: 'assets/images/ttc.png', scale: 0.35 }
 ];
 
 function placeImagesRandomly() {
     const body = document.body;
 
-    images.forEach(src => {
+    images.forEach(item => {
         const img = document.createElement('img');
-        img.src = src;
+        img.src = item.src;
         img.classList.add('image');
 
         img.onload = function () {
-            body.appendChild(img); // MUST append first
+            body.appendChild(img);
+
+            // Apply individual scaling
+            img.style.transform = `scale(${item.scale})`;
+            img.style.transformOrigin = 'top left';
 
             let attempts = 0;
             let placed = false;
 
+            const scaledWidth = img.naturalWidth * item.scale;
+            const scaledHeight = img.naturalHeight * item.scale;
+
             while (!placed && attempts < 100) {
-                const x = Math.random() * (window.innerWidth - img.width);
-                const y = Math.random() * (window.innerHeight - img.height);
+                const x = Math.random() * (window.innerWidth - scaledWidth);
+                const y = Math.random() * (window.innerHeight - scaledHeight);
 
                 img.style.left = x + 'px';
                 img.style.top = y + 'px';
@@ -80,20 +51,12 @@ function placeImagesRandomly() {
 
                 attempts++;
             }
-
-            // If we fail, just leave it somewhere
-            if (!placed) {
-                img.style.left = Math.random() * (window.innerWidth - img.width) + 'px';
-                img.style.top = Math.random() * (window.innerHeight - img.height) + 'px';
-            }
         };
     });
 }
 
 function collides(img) {
     const rect1 = img.getBoundingClientRect();
-
-    // Check against ALL images including center
     const allImages = document.querySelectorAll('img');
 
     for (const other of allImages) {
@@ -115,6 +78,3 @@ function collides(img) {
 
 document.addEventListener('DOMContentLoaded', placeImagesRandomly);
 </script>
-
-</body>
-</html>
