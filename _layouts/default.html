@@ -23,7 +23,6 @@
         z-index: 10;
     }
 
-    /* Floating images */
     .image {
         position: absolute;
     }
@@ -35,24 +34,52 @@
 <img src="assets/images/megan.png" class="center-image">
 
 <script>
+
+// ✅ STATIC IMAGES (edit x/y here)
+const staticImages = [
+    { src: 'assets/images/contact.png', scale: 0.3, x: 100, y: 100 },
+    { src: 'assets/images/resumecar.png', scale: 0.3, x: 300, y: 200 },
+    { src: 'assets/images/imade.png', scale: 0.3, x: 500, y: 150 },
+    { src: 'assets/images/aboutme.png', scale: 0.3, x: 200, y: 400 }
+];
+
+// 🎲 RANDOM IMAGES (everything else)
 const images = [
-    { src: 'assets/images/aboutme.png', scale: 0.3 },
     { src: 'assets/images/chart.png', scale: 0.2 },
-    { src: 'assets/images/contact.png', scale: 0.3 },
     { src: 'assets/images/drivers.png', scale: 0.3},
     { src: 'assets/images/evn.png', scale: 0.2 },
-    { src: 'assets/images/imade.png', scale: 0.3 },
     { src: 'assets/images/linkedin.png', scale: 0.3 },
     { src: 'assets/images/map.png', scale: 0.2 },
     { src: 'assets/images/metal.png', scale: 0.3 },
     { src: 'assets/images/pepto.png', scale: 0.2 },
     { src: 'assets/images/raccoon.png', scale: 0.2 },
-    { src: 'assets/images/resumecar.png', scale: 0.3 },
     { src: 'assets/images/tims.png', scale: 0.2},
     { src: 'assets/images/toronto.png', scale: 0.2 },
     { src: 'assets/images/ttc.png', scale: 0.2 }
 ];
 
+// ✅ Place static images
+function placeStaticImages() {
+    const body = document.body;
+
+    staticImages.forEach(item => {
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.classList.add('image');
+
+        img.onload = function () {
+            body.appendChild(img);
+
+            img.style.transform = `scale(${item.scale})`;
+            img.style.transformOrigin = 'top left';
+
+            img.style.left = item.x + 'px';
+            img.style.top = item.y + 'px';
+        };
+    });
+}
+
+// 🎲 Place random images
 function placeImagesRandomly() {
     const body = document.body;
 
@@ -64,7 +91,6 @@ function placeImagesRandomly() {
         img.onload = function () {
             body.appendChild(img);
 
-            // Apply individual scaling
             img.style.transform = `scale(${item.scale})`;
             img.style.transformOrigin = 'top left';
 
@@ -91,6 +117,7 @@ function placeImagesRandomly() {
     });
 }
 
+// collision detection (includes center + static)
 function collides(img) {
     const rect1 = img.getBoundingClientRect();
     const allImages = document.querySelectorAll('img');
@@ -112,7 +139,11 @@ function collides(img) {
     return false;
 }
 
-document.addEventListener('DOMContentLoaded', placeImagesRandomly);
+// run both
+document.addEventListener('DOMContentLoaded', () => {
+    placeStaticImages();
+    placeImagesRandomly();
+});
 </script>
 
 </body>
