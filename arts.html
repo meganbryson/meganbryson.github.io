@@ -6,6 +6,15 @@
 <title>megan bryson: arts</title>
 
 <style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Courier New", Courier, monospace;
+        overflow-x: hidden;
+        background: #f0f0f0;
+        position: relative;
+    }
+
     .top-bar {
         position: relative;
         width: 100%;
@@ -15,16 +24,15 @@
         align-items: center;
         padding: 0 2vw;
         box-sizing: border-box;
+        z-index: 10;
     }
 
-    /* Images in top bar */
     .top-bar img {
         height: 80%;
         max-height: 120px;
         object-fit: contain;
     }
 
-    /* Center image in top bar */
     .top-center {
         position: absolute;
         left: 50%;
@@ -32,13 +40,8 @@
         height: 80%;
     }
 
-    .top-left {
-        order: 1;
-    }
-
-    .top-right {
-        order: 3;
-    }
+    .top-left { order: 1; }
+    .top-right { order: 3; }
 
     .photo {
         position: absolute;
@@ -51,6 +54,22 @@
         transform: scale(1.05);
         z-index: 20;
     }
+
+    /* ✅ MOBILE FIX RESTORED */
+    @media (max-width: 768px) {
+        .top-bar {
+            height: 18vh;
+        }
+
+        .top-bar img {
+            height: 55%;
+            max-height: 80px;
+        }
+
+        .top-center {
+            height: 55%;
+        }
+    }
 </style>
 </head>
 
@@ -58,18 +77,18 @@
 
 <div class="top-bar">
     <a href="/menu.html">
-        <img src="assets/images/menu.png">
+        <img src="assets/images/menu.png" class="top-left">
     </a>
 
     <img src="assets/images/creative.jpg" class="top-center">
 
     <a href="/">
-        <img src="assets/images/megan.png">
+        <img src="assets/images/megan.png" class="top-right">
     </a>
 </div>
 
 <script>
-const PHOTO_SCALE = 0.10;
+const PHOTO_SCALE = 0.18;
 const TOTAL_PHOTOS = 24;
 
 const photosData = [];
@@ -77,10 +96,10 @@ const photosData = [];
 function createPhotos() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
-    const pageHeight = document.body.scrollHeight;
+    const viewportHeight = window.innerHeight;
 
     const spawnMinY = topBarHeight;
-    const spawnMaxY = pageHeight * 0.6; // 🔥 only top 50%
+    const spawnMaxY = viewportHeight * 0.5; // ✅ top 50% of screen
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
@@ -88,7 +107,7 @@ function createPhotos() {
         img.className = "photo";
 
         img.onerror = () => {
-            console.warn("Failed to load:", img.src);
+            console.warn("Missing:", img.src);
             img.remove();
         };
 
@@ -123,14 +142,14 @@ function createPhotos() {
 function animate() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
-    const pageHeight = document.body.scrollHeight;
-    const maxY = pageHeight * 0.5; // 🔥 movement capped to top 50%
+    const viewportHeight = window.innerHeight;
+    const maxY = viewportHeight * 0.5;
 
     photosData.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
 
-        // left/right bounce
+        // left/right
         if (p.x <= 0 || p.x + p.width >= viewportWidth) {
             p.vx *= -1;
         }
@@ -141,7 +160,7 @@ function animate() {
             p.vy *= -1;
         }
 
-        // bottom boundary (50% of page)
+        // bottom boundary (50% screen)
         if (p.y + p.height >= maxY) {
             p.y = maxY - p.height;
             p.vy *= -1;
