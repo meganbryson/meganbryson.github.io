@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>megan bryson</title>
+<title>Megan Bryson</title>
 
 <style>
     body {
@@ -14,13 +14,12 @@
         background: transparent;
     }
 
-    /* Center image (Megan) on top */
+    /* Megan image always on top */
     .center {
         position: absolute;
         top: 30%;
         left: 50%;
         transform: translate(-50%, -50%);
-        height: 25vh;
         z-index: 999; /* ensure it's on top */
     }
 
@@ -50,11 +49,8 @@
 
     /* Mobile adjustments */
     @media (max-width: 768px) {
-        /* Megan larger and off-center */
         .center {
-            height: 20vh; /* increase size on mobile */
-            left: 63%;    /* move off-center to the left */
-            transform: translate(-50%, -50%);
+            left: 63%; /* off-center on mobile */
         }
 
         .bg-img,
@@ -63,48 +59,16 @@
             transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 0.5));
         }
 
-        /* Move up resumecar on mobile */
-        #resumecar {
-            top: 80% !important;
-            left: 20% !important;
-        }
-
-        #aboutme {
-            top: 10% !important;
-        }
-
-        #ttc {
-            top: 50% !important;
-        }
-
-        #tims {
-            top: 70% !important;
-        }
-        #toronto {
-            left: 95% !important;
-        }
-
-        #pepto {
-            left: 90% !important;
-            top: 20% !important;
-        }
-
-        #menu {
-            top: 28% !important;
-            left: 20% !important;
-        }
-
-        #metalblack {
-            top: 35% !important;
-        }
-
-        #raccoon {
-            top: 70% !important;
-        }
-        #linkedin {
-            top: 42% !important;
-        }
-        
+        #resumecar { top: 80% !important; left: 20% !important; }
+        #aboutme { top: 10% !important; }
+        #ttc { top: 50% !important; }
+        #tims { top: 70% !important; }
+        #toronto { left: 95% !important; }
+        #pepto { left: 90% !important; top: 20% !important; }
+        #menu { top: 28% !important; left: 20% !important; }
+        #metalblack { top: 35% !important; }
+        #raccoon { top: 70% !important; }
+        #linkedin { top: 42% !important; }
     }
 </style>
 </head>
@@ -136,6 +100,17 @@
 <img src="assets/images/ttc.png" class="img" style="--scale: 0.25; top: 60%; left: 45%;" id="ttc">
 
 <script>
+    // Function to dynamically size Megan based on window
+    function resizeMegan() {
+        const megan = document.getElementById('megan');
+        const windowHeight = window.innerHeight;
+        const windowWidth = window.innerWidth;
+
+        // Set height as a function of width and height
+        const newHeight = Math.min(windowHeight * 0.35, windowWidth * 0.25); 
+        megan.style.height = `${newHeight}px`;
+    }
+
     // Make sure foreground images do not overlap Megan
     function adjustPositions() {
         const megan = document.getElementById('megan');
@@ -144,21 +119,25 @@
 
         fgImages.forEach(img => {
             const imgRect = img.getBoundingClientRect();
-            // Check if overlaps
             if (
                 imgRect.left < meganRect.right &&
                 imgRect.right > meganRect.left &&
                 imgRect.top < meganRect.bottom &&
                 imgRect.bottom > meganRect.top
             ) {
-                // Move image up if overlapping
                 img.style.top = `${parseFloat(img.style.top) - 10}%`;
             }
         });
     }
 
-    window.addEventListener('load', adjustPositions);
-    window.addEventListener('resize', adjustPositions);
+    window.addEventListener('load', () => {
+        resizeMegan();
+        adjustPositions();
+    });
+    window.addEventListener('resize', () => {
+        resizeMegan();
+        adjustPositions();
+    });
 </script>
 
 </body>
