@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>megan bryson: menu</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: "Courier New", Courier, monospace;
+        overflow-x: hidden;
+        background: #f0f0f0;
+    }
+
+    /* Top bar container */
+    .top-bar {
+        position: relative;
+        width: 100%;
+        height: 15vh; /* top 15% of window */
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2vw;
+        box-sizing: border-box;
+    }
+
+    /* Images in top bar */
+    .top-bar img {
+        height: 80%; /* 80% of top-bar height */
+        max-height: 120px; /* optional max height */
+        object-fit: contain;
+    }
+
+    /* Center image in top bar */
+    .top-center {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 80%;
+    }
+
+    /* Menu left and Megan right */
+    .top-left {
+        order: 1;
+    }
+
+    .top-right {
+        order: 3;
+    }
+
+    /* Middle content */
+    .content {
+        width: 80%;
+        margin: 5vh auto;
+        font-size: calc(16px + 0.5vw); /* responsive font */
+        text-align: center;
+        line-height: 1.6;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .top-bar {
+            height: 20vh;
+        }
+
+        .top-bar img {
+            height: 70%;
+        }
+
+        .content {
+            width: 90%;
+            font-size: calc(14px + 1vw);
+        }
+    }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+   
+
+  <a href="/" class="home-button">
+     <img src="assets/images/menu.png" alt="Menu" class="top-left">
+</a>
+
+ 
+
+    <!-- Top right Megan -->
+    
+    <a href="/" class="home-button">
+    <img src="assets/images/megan.png" alt="Megan" class="top-right">
+</a>
+</div>
+
+<!-- Middle content -->
+<div class="content">
+    <p>
+        MENU!!!
+    </p>
+</div>
+
+</body>
+</html>
