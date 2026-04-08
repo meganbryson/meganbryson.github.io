@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>megan bryson: arts</title>
+
 <style>
     body {
         margin: 0;
@@ -11,6 +12,8 @@
         font-family: "Courier New", Courier, monospace;
         overflow-x: hidden;
         background: #f0f0f0;
+        position: relative;
+        min-height: 200vh; /* gives space for images */
     }
 
     /* Top bar container */
@@ -23,16 +26,15 @@
         align-items: center;
         padding: 0 2vw;
         box-sizing: border-box;
+        z-index: 10;
     }
 
-    /* Images in top bar */
     .top-bar img {
         height: 80%;
         max-height: 120px;
         object-fit: contain;
     }
 
-    /* Center image in top bar */
     .top-center {
         position: absolute;
         left: 50%;
@@ -40,15 +42,9 @@
         height: 80%;
     }
 
-    .top-left {
-        order: 1;
-    }
+    .top-left { order: 1; }
+    .top-right { order: 3; }
 
-    .top-right {
-        order: 3;
-    }
-
-    /* Middle content */
     .content {
         width: 80%;
         margin: 5vh auto;
@@ -57,54 +53,123 @@
         line-height: 1.6;
     }
 
-    /* Mobile adjustments */
+    /* Photo styling */
+    .photo {
+        position: absolute;
+        object-fit: cover;
+        border-radius: 4px;
+        transition: transform 0.2s ease;
+    }
+
+    .photo:hover {
+        transform: scale(1.05);
+        z-index: 20;
+    }
+
+    /* Mobile */
     @media (max-width: 768px) {
-        .top-bar {
-            height: 18vh;
-        }
+        .top-bar { height: 18vh; }
 
-        /* 🔽 Make images smaller on mobile */
         .top-bar img {
-            height: 55%;        /* smaller than before */
-            max-height: 80px;   /* cap size */
+            height: 55%;
+            max-height: 80px;
         }
 
-        .top-center {
-            height: 55%; /* keep center consistent */
-        }
+        .top-center { height: 55%; }
 
         .content {
             width: 90%;
             font-size: calc(14px + 1vw);
         }
-        #gif {
-    width: 70vw; 
-}
-
-        
     }
 </style>
 </head>
+
 <body>
 
 <div class="top-bar">
-    <a href="/menu.html" class="home-button">
-        <img src="assets/images/menu.png" alt="Menu" class="top-left">
+    <a href="/menu.html">
+        <img src="assets/images/menu.png" class="top-left">
     </a>
 
-    <img src="assets/images/creative.jpg" alt="Center Image" class="top-center">
+    <img src="assets/images/creative.jpg" class="top-center">
 
-    <a href="/" class="home-button">
-    <img src="assets/images/megan.png" alt="Megan" class="top-right">
-</a>
+    <a href="/">
+        <img src="assets/images/megan.png" class="top-right">
+    </a>
 </div>
 
-<div class="content">
-    <p>
-        well i did a thesis. and also i made this website. and this gif. so thats at least three things.
-    </p>
-    <img src="assets/images/dayinmylife.gif" alt="RHONY GIF" id="gif">
+<div class="content"></div>
 
-</div>
+<script>
+/* 🔧 GLOBAL SIZE CONTROL */
+const PHOTO_SCALE = 0.18; // change this (0.1 small → 0.3 large)
+
+/* SETTINGS */
+const TOTAL_PHOTOS = 24;
+const placedBoxes = [];
+
+function createPhotos() {
+    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = document.body.scrollHeight;
+
+    for (let i = 1; i <= TOTAL_PHOTOS; i++) {
+        const img = document.createElement("img");
+        img.src = `assets/images/shots/photo${i}.jpg`;
+        img.className = "photo";
+
+        document.body.appendChild(img);
+
+        img.onload = () => {
+            const baseWidth = viewportWidth * PHOTO_SCALE;
+            const aspectRatio = img.naturalHeight / img.naturalWidth;
+
+            const width = baseWidth;
+            const height = baseWidth * aspectRatio;
+
+            let placed = false;
+            let attempts = 0;
+
+            let x, y;
+
+            while (!placed && attempts < 1) {
+                x = Math.random() * (viewportWidth - width);
+                y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
+
+                const newBox = { x, y, width, height };
+
+                let collision = placedBoxes.some(box =>
+                    !(newBox.x + newBox.width < box.x ||
+                      newBox.x > box.x + box.width ||
+                      newBox.y + newBox.height < box.y ||
+                      newBox.y > box.y + box.height)
+                );
+
+                if (!collision) {
+                    placedBoxes.push(newBox);
+                    placed = true;
+                }
+
+                attempts++;
+            }
+
+            /* fallback if collision */
+            if (!placed) {
+                x = Math.random() * (viewportWidth - width);
+                y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
+            }
+
+            img.style.width = width + "px";
+            img.style.height = height + "px";
+            img.style.left = x + "px";
+            img.style.top = y + "px";
+        };
+    }
+}
+
+window.onload = createPhotos;
+</script>
+
 </body>
 </html>
