@@ -73,7 +73,7 @@
 </div>
 
 <script>
-const PHOTO_SCALE = 0.18;
+const PHOTO_SCALE = 0.10;
 const TOTAL_PHOTOS = 24;
 
 const photosData = [];
@@ -84,7 +84,7 @@ function createPhotos() {
     const pageHeight = document.body.scrollHeight;
 
     const spawnMinY = topBarHeight;
-    const spawnMaxY = pageHeight * 0.5; // 🔥 only top 50%
+    const spawnMaxY = pageHeight * 0.6; // 🔥 only top 50%
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
