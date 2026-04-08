@@ -78,6 +78,51 @@
             font-size: calc(14px + 1vw);
         }
     }
+
+    🎨 Add this CSS:
+/* Container */
+.content {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+}
+
+/* Center text */
+.center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(60vw, 500px);
+    text-align: center;
+    font-size: calc(16px + 0.5vw);
+    line-height: 1.6;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 10;
+}
+
+/* Buttons */
+.btn {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 90px; /* control size */
+    height: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 20;
+}
+
+/* Hover effect */
+.clickable img:hover,
+.clickable img:active {
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0.85;
+    cursor: pointer;
+}
+
+
+}
 </style>
 </head>
 <body>
@@ -93,31 +138,37 @@
     </a>
 </div>
 
+    
 <div class="content">
-    <div class="button-grid">
-
-        <a href="/about.html" class="clickable">
-            <img src="assets/images/aboutme.png" alt="About">
-        </a>
-
-        <a href="/contact.html" class="clickable">
-            <img src="assets/images/contactblack (6).png" alt="Contact">
-        </a>
-
-        <a href="/imade.html" class="clickable">
-            <img src="assets/images/imade.png" alt="I Made">
-        </a>
-
-        <a href="/resume.html" class="clickable">
-            <img src="assets/images/resumecar.png" alt="Resume">
-        </a>
-
-        <a href="https://www.linkedin.com/in/megan-bryson-29373630b/" target="_blank" class="clickable">
-            <img src="assets/images/linkedin.png" alt="LinkedIn">
-        </a>
-
+    <div class="center-text">
+        <p>
+            Hi, I'm Megan. This is some sample text in the center.
+            You can put your bio, intro, or anything here.
+        </p>
     </div>
+
+    <!-- Buttons positioned around the center -->
+    <a href="/about.html" class="clickable">
+        <img src="assets/images/aboutme.png" class="btn" style="top: 35%; left: 35%;" alt="About">
+    </a>
+
+    <a href="/contact.html" class="clickable">
+        <img src="assets/images/contactblack (6).png" class="btn" style="top: 30%; left: 65%;" alt="Contact">
+    </a>
+
+    <a href="/imade.html" class="clickable">
+        <img src="assets/images/imade.png" class="btn" style="top: 65%; left: 65%;" alt="I Made">
+    </a>
+
+    <a href="/resume.html" class="clickable">
+        <img src="assets/images/resumecar.png" class="btn" style="top: 70%; left: 35%;" alt="Resume">
+    </a>
+
+    <a href="https://www.linkedin.com/in/megan-bryson-29373630b/" target="_blank" class="clickable">
+        <img src="assets/images/linkedin.png" class="btn" style="top: 50%; left: 80%;" alt="LinkedIn">
+    </a>
 </div>
 
+    
 </body>
 </html>
