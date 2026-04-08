@@ -56,6 +56,21 @@
         text-align: center;
         line-height: 1.6;
     }
+    .btn {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(var(--scale, 1));
+    width: 20vh;
+    height: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 20;
+}
+
+/* Hover effect */
+.clickable img:hover {
+    transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.1));
+    opacity: 0.85;
+    cursor: pointer;
+}
 
     /* Mobile adjustments */
     @media (max-width: 768px) {
@@ -100,10 +115,9 @@
 </div>
 
 <div class="content">
-    <p>
-        well i did a thesis. and also i made this website. and this gif. so thats at least three things.
-    </p>
-    <img src="assets/images/dayinmylife.gif" alt="RHONY GIF" id="gif">
+     <a href=" https://queensu.scholaris.ca/items/c05439a4-154b-462d-9755-60c4cef9574a" class="clickable">
+        <img src="assets/images/thesis.jpg" class="btn" id="art" alt="art">
+    </a>
 
 </div>
 </body>
