@@ -13,10 +13,9 @@
         overflow-x: hidden;
         background: #f0f0f0;
         position: relative;
-        min-height: 200vh; /* gives space for images */
+        min-height: 200vh;
     }
 
-    /* Top bar container */
     .top-bar {
         position: relative;
         width: 100%;
@@ -50,15 +49,13 @@
         margin: 5vh auto;
         font-size: calc(16px + 0.5vw);
         text-align: center;
-        line-height: 1.6;
     }
 
-    /* Photo styling */
     .photo {
         position: absolute;
         object-fit: cover;
         border-radius: 4px;
-        transition: transform 0.2s ease;
+        will-change: transform;
     }
 
     .photo:hover {
@@ -66,7 +63,6 @@
         z-index: 20;
     }
 
-    /* Mobile */
     @media (max-width: 768px) {
         .top-bar { height: 18vh; }
 
@@ -102,12 +98,10 @@
 <div class="content"></div>
 
 <script>
-/* 🔧 GLOBAL SIZE CONTROL */
-const PHOTO_SCALE = 0.18; // change this (0.1 small → 0.3 large)
-
-/* SETTINGS */
+const PHOTO_SCALE = 0.18;
 const TOTAL_PHOTOS = 24;
-const placedBoxes = [];
+
+const photosData = [];
 
 function createPhotos() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
@@ -128,47 +122,62 @@ function createPhotos() {
             const width = baseWidth;
             const height = baseWidth * aspectRatio;
 
-            let placed = false;
-            let attempts = 0;
-
-            let x, y;
-
-            while (!placed && attempts < 1) {
-                x = Math.random() * (viewportWidth - width);
-                y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
-
-                const newBox = { x, y, width, height };
-
-                let collision = placedBoxes.some(box =>
-                    !(newBox.x + newBox.width < box.x ||
-                      newBox.x > box.x + box.width ||
-                      newBox.y + newBox.height < box.y ||
-                      newBox.y > box.y + box.height)
-                );
-
-                if (!collision) {
-                    placedBoxes.push(newBox);
-                    placed = true;
-                }
-
-                attempts++;
-            }
-
-            /* fallback if collision */
-            if (!placed) {
-                x = Math.random() * (viewportWidth - width);
-                y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
-            }
+            let x = Math.random() * (viewportWidth - width);
+            let y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
 
             img.style.width = width + "px";
             img.style.height = height + "px";
-            img.style.left = x + "px";
-            img.style.top = y + "px";
+
+            // random slow velocity
+            const vx = (Math.random() - 0.5) * 0.3;
+            const vy = (Math.random() - 0.5) * 0.3;
+
+            photosData.push({
+                el: img,
+                x, y,
+                width, height,
+                vx, vy
+            });
         };
     }
 }
 
-window.onload = createPhotos;
+function animate() {
+    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = document.body.scrollHeight;
+
+    photosData.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        // LEFT / RIGHT bounce
+        if (p.x <= 0 || p.x + p.width >= viewportWidth) {
+            p.vx *= -1;
+        }
+
+        // TOP BAR bounce (no-go zone)
+        if (p.y <= topBarHeight) {
+            p.y = topBarHeight;
+            p.vy *= -1;
+        }
+
+        // BOTTOM bounce
+        if (p.y + p.height >= viewportHeight) {
+            p.vy *= -1;
+        }
+
+        p.el.style.left = p.x + "px";
+        p.el.style.top = p.y + "px";
+    });
+
+    requestAnimationFrame(animate);
+}
+
+window.onload = () => {
+    createPhotos();
+    setTimeout(animate, 100); // slight delay to ensure images load
+};
 </script>
 
 </body>
