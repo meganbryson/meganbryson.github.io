@@ -99,7 +99,7 @@ function createPhotos() {
     const viewportHeight = window.innerHeight;
 
     const spawnMinY = topBarHeight;
-    const spawnMaxY = viewportHeight;
+    const spawnMaxY = viewportHeight; // ✅ full screen
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
@@ -126,8 +126,8 @@ function createPhotos() {
             img.style.width = width + "px";
             img.style.height = height + "px";
 
-            const vx = (Math.random()) * 0.3;
-            const vy = (Math.random()) * 0.3;
+            const vx = (Math.random() - 0.5) * 0.3;
+            const vy = (Math.random() - 0.5) * 0.3;
 
             photosData.push({
                 el: img,
@@ -143,26 +143,25 @@ function animate() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const maxY = viewportHeight * 0.5;
 
     photosData.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
 
-        // left/right
+        // LEFT / RIGHT
         if (p.x <= 0 || p.x + p.width >= viewportWidth) {
             p.vx *= -1;
         }
 
-        // top bar boundary
+        // TOP BAR (no-go zone)
         if (p.y <= topBarHeight) {
             p.y = topBarHeight;
             p.vy *= -1;
         }
 
-        // bottom boundary (50% screen)
-        if (p.y + p.height >= maxY) {
-            p.y = maxY - p.height;
+        // BOTTOM (full viewport now)
+        if (p.y + p.height >= viewportHeight) {
+            p.y = viewportHeight - p.height;
             p.vy *= -1;
         }
 
