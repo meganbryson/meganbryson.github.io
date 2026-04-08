@@ -10,7 +10,7 @@
         margin: 0;
         padding: 0;
         font-family: "Courier New", Courier, monospace;
-        overflow-x: hidden;
+        overflow: hidden; /* prevent scroll */
         background: #f0f0f0;
         position: relative;
     }
@@ -24,7 +24,7 @@
         align-items: center;
         padding: 0 2vw;
         box-sizing: border-box;
-        z-index: 10;
+        z-index: 1000;
     }
 
     .top-bar img {
@@ -48,18 +48,16 @@
         object-fit: cover;
         border-radius: 4px;
         will-change: transform;
+        z-index: 1;
     }
 
     .photo:hover {
         transform: scale(1.05);
-        z-index: 20;
+        z-index: 2000;
     }
 
-    /* ✅ MOBILE FIX RESTORED */
     @media (max-width: 768px) {
-        .top-bar {
-            height: 18vh;
-        }
+        .top-bar { height: 18vh; }
 
         .top-bar img {
             height: 55%;
@@ -88,18 +86,21 @@
 </div>
 
 <script>
-const PHOTO_SCALE = 0.13;
+const PHOTO_SCALE = 0.18;
 const TOTAL_PHOTOS = 24;
 
 const photosData = [];
+let topZ = 10; // 🔥 tracks highest z-index
+
+function bringToFront(el) {
+    topZ++;
+    el.style.zIndex = topZ;
+}
 
 function createPhotos() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-
-    const spawnMinY = topBarHeight;
-    const spawnMaxY = viewportHeight; // ✅ full screen
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
@@ -121,7 +122,7 @@ function createPhotos() {
             const height = baseWidth * aspectRatio;
 
             let x = Math.random() * (viewportWidth - width);
-            let y = Math.random() * (spawnMaxY - spawnMinY - height) + spawnMinY;
+            let y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
 
             img.style.width = width + "px";
             img.style.height = height + "px";
@@ -148,21 +149,31 @@ function animate() {
         p.x += p.vx;
         p.y += p.vy;
 
+        let bounced = false;
+
         // LEFT / RIGHT
         if (p.x <= 0 || p.x + p.width >= viewportWidth) {
             p.vx *= -1;
+            bounced = true;
         }
 
-        // TOP BAR (no-go zone)
+        // TOP BAR
         if (p.y <= topBarHeight) {
             p.y = topBarHeight;
             p.vy *= -1;
+            bounced = true;
         }
 
-        // BOTTOM (full viewport now)
+        // BOTTOM
         if (p.y + p.height >= viewportHeight) {
             p.y = viewportHeight - p.height;
             p.vy *= -1;
+            bounced = true;
+        }
+
+        // 🔥 bring to front on bounce
+        if (bounced) {
+            bringToFront(p.el);
         }
 
         p.el.style.left = p.x + "px";
