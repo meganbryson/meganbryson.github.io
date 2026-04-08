@@ -11,7 +11,7 @@
         height: 100vh;
         margin: 0;
         overflow: hidden;
-        background: transparent; /* preserve transparency */
+        background: transparent;
     }
 
     /* Center image */
@@ -20,8 +20,8 @@
         top: 30%;
         left: 50%;
         transform: translate(-50%, -50%);
-        height: 25vh; /* responsive */
-        z-index: 50; /* middle layer */
+        height: 25vh;
+        z-index: 50;
     }
 
     /* Background images */
@@ -53,7 +53,12 @@
         .bg-img,
         .fg-img,
         .img {
-            transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 0.5));
+            transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 0.7));
+        }
+
+        /* Move up resumecar on mobile */
+        #resumecar {
+            top: 80% !important;
         }
     }
 </style>
@@ -84,6 +89,32 @@
 <img src="assets/images/tims.png" class="img" style="--scale: 0.25; top: 90%; left: 40%;" id="tims">
 <img src="assets/images/toronto.png" class="img" style="--scale: 0.25; top: 35%; left: 75%;" id="toronto">
 <img src="assets/images/ttc.png" class="img" style="--scale: 0.25; top: 60%; left: 45%;" id="ttc">
+
+<script>
+    // Make sure foreground images do not overlap megan
+    function adjustPositions() {
+        const megan = document.getElementById('megan');
+        const meganRect = megan.getBoundingClientRect();
+        const fgImages = document.querySelectorAll('.fg-img');
+
+        fgImages.forEach(img => {
+            const imgRect = img.getBoundingClientRect();
+            // Check if overlaps
+            if (
+                imgRect.left < meganRect.right &&
+                imgRect.right > meganRect.left &&
+                imgRect.top < meganRect.bottom &&
+                imgRect.bottom > meganRect.top
+            ) {
+                // Move image up if overlapping
+                img.style.top = `${parseFloat(img.style.top) - 10}%`;
+            }
+        });
+    }
+
+    window.addEventListener('load', adjustPositions);
+    window.addEventListener('resize', adjustPositions);
+</script>
 
 </body>
 </html>
