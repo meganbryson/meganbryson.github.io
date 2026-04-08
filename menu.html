@@ -4,166 +4,220 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>megan bryson: menu</title>
+
 <style>
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: "Courier New", Courier, monospace;
-        overflow-x: hidden;
-        background: #f0f0f0;
-    }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Courier New", Courier, monospace;
+    overflow-x: hidden;
+    background: #f0f0f0;
+}
 
-    /* Top bar container */
-    .top-bar {
-        position: relative;
-        width: 100%;
-        height: 15vh;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 2vw;
-        box-sizing: border-box;
-    }
+/* =========================
+   TOP BAR
+========================= */
+.top-bar {
+    position: relative;
+    width: 100%;
+    height: 15vh;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2vw;
+}
 
-    /* Images in top bar */
-    .top-bar img {
-        height: 80%;
-        max-height: 120px;
-        object-fit: contain;
-    }
+.top-bar img {
+    height: 80%;
+    max-height: 120px;
+    object-fit: contain;
+}
 
-    /* Center image in top bar */
-    .top-center {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 80%;
-    }
+/* =========================
+   CONTENT AREA
+========================= */
+.content {
+    position: relative;
+    width: 100%;
+    height: 85vh;
+}
 
-    .top-left {
-        order: 1;
-    }
+/* Center text */
+.center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(60vw, 500px);
+    text-align: center;
+    font-size: calc(16px + 0.5vw);
+    line-height: 1.6;
+}
 
-    .top-right {
-        order: 3;
-    }
-
-    /* Middle content */
-    .content {
-        width: 80%;
-        margin: 5vh auto;
-        font-size: calc(16px + 0.5vw);
-        text-align: center;
-        line-height: 1.6;
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-        .top-bar {
-            height: 18vh;
-        }
-
-        /* 🔽 Make images smaller on mobile */
-        .top-bar img {
-            height: 55%;        /* smaller than before */
-            max-height: 80px;   /* cap size */
-        }
-
-        .top-center {
-            height: 55%; /* keep center consistent */
-        }
-
-        .content {
-            width: 90%;
-            font-size: calc(14px + 1vw);
-        }
-
-         .btn {
-        width: 12vh; /* adjust this number to taste */
-    }
-    }
-
-   
-
-
-/* Buttons */
+/* =========================
+   BUTTON BASE
+========================= */
 .btn {
     position: absolute;
-    transform: translate(-50%, -50%);
-    width: 20vh; /* control size */
+    transform: translate(-50%, -50%) scale(var(--scale, 1));
+    width: 20vh;
     height: auto;
     transition: transform 0.3s ease, opacity 0.3s ease;
     z-index: 20;
 }
 
- /* Shared clickable behavior */
-    .clickable img {
-        transition: transform 0.3s ease, opacity 0.3s ease;
-        cursor: pointer;
+/* Hover effect */
+.clickable img:hover {
+    transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.1));
+    opacity: 0.85;
+    cursor: pointer;
+}
+
+/* =========================
+   DESKTOP POSITIONS + SCALES
+========================= */
+#about {
+    top: 35%;
+    left: 30%;
+    --scale: 1;
+}
+
+#contact {
+    top: 55%;
+    left: 20%;
+    --scale: 1;
+}
+
+#imade {
+    top: 30%;
+    left: 80%;
+    --scale: 1;
+}
+
+#resume {
+    top: 50%;
+    left: 75%;
+    --scale: 1;
+}
+
+#linkedin {
+    top: 50%;
+    left: 60%;
+    --scale: 1;
+}
+
+/* =========================
+   MOBILE OVERRIDES
+========================= */
+@media (max-width: 768px) {
+
+    .top-bar {
+        height: 18vh;
     }
 
-    .clickable img:hover,
-    .clickable img:active {
-        transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.1));
-        opacity: 0.85;
+    .top-bar img {
+        height: 55%;
+        max-height: 80px;
     }
 
+    .center-text {
+        width: 85vw;
+        font-size: calc(14px + 1vw);
+    }
 
+    /* Global button size reduction */
+    .btn {
+        width: 12vh;
+    }
+
+    /* 🔥 Individual mobile control */
+
+    #about {
+        top: 80%;
+        left: 20%;
+        --scale: 0.9;
+    }
+
+    #contact {
+        top: 70%;
+        left: 25%;
+        --scale: 0.9;
+    }
+
+    #imade {
+        top: 70%;
+        left: 60%;
+        --scale: 0.9;
+    }
+
+    #resume {
+        top: 80%;
+        left: 80%;
+        --scale: 0.9;
+    }
+
+    #linkedin {
+        top: 55%;
+        left: 60%;
+        --scale: 0.9;
+    }
 }
 </style>
 </head>
+
 <body>
 
+<!-- =========================
+     TOP BAR
+========================= -->
 <div class="top-bar">
-    <a href="/menu.html" class="home-button">
-        <img src="assets/images/menu.png" alt="Menu" class="top-left">
+    <a href="/menu.html">
+        <img src="assets/images/menu.png" alt="Menu">
     </a>
 
-    
-<a href="/" class="home-button">
-    <img src="assets/images/megan.png" alt="Megan" class="top-right">
+    <a href="/">
+        <img src="assets/images/megan.png" alt="Megan">
     </a>
 </div>
 
-    
+<!-- =========================
+     MAIN CONTENT
+========================= -->
 <div class="content">
+
+    <!-- Center text -->
     <div class="center-text">
         <p>
-        
-               <a href="/about.html">about<br></a>
-
-    <a href="/contact.html">contact<br></a>
-
-    <a href="/imade.html">stuff i made<br></a>
-
-    <a href="/resume.html">resume<br></a>
-
-    <a href="https://www.linkedin.com/in/megan-bryson-29373630b/">linkedin<br></a>
+            <a href="/about.html">about</a><br>
+            <a href="/contact.html">contact</a><br>
+            <a href="/imade.html">stuff i made</a><br>
+            <a href="/resume.html">resume</a><br>
+            <a href="https://www.linkedin.com/in/megan-bryson-29373630b/" target="_blank">linkedin</a>
         </p>
     </div>
 
-    <!-- Buttons positioned around the center -->
+    <!-- Buttons -->
     <a href="/about.html" class="clickable">
-        <img src="assets/images/aboutme.png" class="btn" style="top: 35%; left: 30%;" alt="About">
+        <img src="assets/images/aboutme.png" class="btn" id="about" alt="About">
     </a>
 
     <a href="/contact.html" class="clickable">
-        <img src="assets/images/contactblack (6).png" class="btn" style="top: 55%; left: 20%;" alt="Contact">
+        <img src="assets/images/contactblack (6).png" class="btn" id="contact" alt="Contact">
     </a>
 
     <a href="/imade.html" class="clickable">
-        <img src="assets/images/imade.png" class="btn" style="top: 30%; left: 80%;" alt="I Made">
+        <img src="assets/images/imade.png" class="btn" id="imade" alt="I Made">
     </a>
 
     <a href="/resume.html" class="clickable">
-        <img src="assets/images/resumecar.png" class="btn" style="top: 50%; left: 75%;" alt="Resume">
+        <img src="assets/images/resumecar.png" class="btn" id="resume" alt="Resume">
     </a>
 
     <a href="https://www.linkedin.com/in/megan-bryson-29373630b/" target="_blank" class="clickable">
-        <img src="assets/images/linkedin.png" class="btn" style="top: 50%; left: 60%;" alt="LinkedIn">
+        <img src="assets/images/linkedin.png" class="btn" id="linkedin" alt="LinkedIn">
     </a>
+
 </div>
 
-    
 </body>
 </html>
