@@ -99,7 +99,7 @@ function createPhotos() {
     const viewportHeight = window.innerHeight;
 
     const spawnMinY = topBarHeight;
-    const spawnMaxY = viewportHeight * 0.5; // ✅ top 50% of screen
+    const spawnMaxY = viewportHeight;
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
