@@ -57,6 +57,18 @@
         line-height: 1.6;
     }
 
+     /* Shared clickable behavior */
+    .clickable img {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        cursor: pointer;
+    }
+
+    .clickable img:hover,
+    .clickable img:active {
+        transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.1));
+        opacity: 0.85;
+    }
+
     /* Mobile adjustments */
     @media (max-width: 768px) {
         .top-bar {
@@ -104,6 +116,14 @@
         well i did a thesis. and also i made this website. and this gif. so thats at least three things.
     </p>
     <img src="assets/images/dayinmylife.gif" alt="RHONY GIF" id="gif">
+
+    <a href="/arts.html" class="clickable">
+        <img src="assets/images/creative.jpg" class="btn" id="art" alt="art">
+    </a>
+
+    <a href="/computers.html" class="clickable">
+        <img src="assets/images/computers.jpg" class="btn" id="computers" alt="computers">
+    </a>
 
 </div>
 </body>
