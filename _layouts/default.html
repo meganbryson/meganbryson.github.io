@@ -47,6 +47,18 @@
         z-index: 50;
     }
 
+    /* Contact button hover/tap effect */
+    .contact-button img {
+        transition: transform 0.3s ease, opacity 0.3s ease;
+        cursor: pointer;
+    }
+
+    .contact-button img:hover,
+    .contact-button img:active {
+        transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.1));
+        opacity: 0.85;
+    }
+
     /* Mobile adjustments */
     @media (max-width: 768px) {
         .center {
@@ -60,7 +72,7 @@
         }
 
         #resumecar { top: 78% !important; left: 20% !important; }
-        #contact { top: 8% !important;left: 75%; }
+        #contact { top: 8% !important; left: 75%; }
         #aboutme { top: 10% !important; }
         #ttc { top: 50% !important; }
         #tims { top: 70% !important; }
@@ -85,7 +97,12 @@
 
 <!-- Foreground images -->
 <img src="assets/images/aboutme.png" class="fg-img" style="--scale: 0.3; top: 20%; left: 30%;" id="aboutme">
-<img src="assets/images/contactblack (6).png" class="fg-img" style="--scale: 0.35; top: 15%; left: 85%;" id="contact">
+
+<!-- Contact as a clickable button -->
+<a href="/contact.html" class="contact-button">
+    <img src="assets/images/contactblack (6).png" class="fg-img" style="--scale: 0.35; top: 15%; left: 85%;" id="contact">
+</a>
+
 <img src="assets/images/imade.png" class="fg-img" style="--scale: 0.3; top: 55%; left: 75%;" id="imade">
 <img src="assets/images/resumecar.png" class="fg-img" style="--scale: 0.35; top: 90%; left: 15%;" id="resumecar">
 <img src="assets/images/menu.png" class="fg-img" style="--scale: 0.25; top: 15%; left: 10%;" id="menu">
