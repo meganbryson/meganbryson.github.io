@@ -14,14 +14,14 @@
         background: transparent;
     }
 
-    /* Center image */
+    /* Center image (Megan) on top */
     .center {
         position: absolute;
         top: 30%;
         left: 50%;
         transform: translate(-50%, -50%);
         height: 25vh;
-        z-index: 50;
+        z-index: 999; /* ensure it's on top */
     }
 
     /* Background images */
@@ -47,9 +47,12 @@
         transform-origin: center;
     }
 
-    /* Mobile scaling: reduce all images by 30% */
+    /* Mobile adjustments */
     @media (max-width: 768px) {
-        .center,
+        .center {
+            height: 35vh; /* increase size on mobile */
+        }
+
         .bg-img,
         .fg-img,
         .img {
@@ -62,36 +65,37 @@
             left: 20% !important;
         }
 
-         #aboutme {
+        #aboutme {
             top: 10% !important;
         }
 
-         #ttc {
+        #ttc {
             top: 50% !important;
         }
 
-         #tims {
+        #tims {
             top: 70% !important;
         }
+
         #pepto {
             left: 50% !important;
         }
+
         #evn {
             top: 25% !important;
         }
-        
     }
 </style>
 </head>
 
 <body>
 
-<!-- Center -->
-<img src="assets/images/megan.png" class="center">
+<!-- Center (Megan) on top -->
+<img src="assets/images/megan.png" class="center" id="megan">
 
-<!-- Background images -->
-<img src="assets/images/metalblack.png" class="bg-img" style="--scale: 0.3; top: 45%; left: 15%;" id="metal">
+<!-- Background images (map first) -->
 <img src="assets/images/map.png" class="bg-img" style="--scale: 0.25; top: 75%; left: 58%;" id="map">
+<img src="assets/images/metalblack.png" class="bg-img" style="--scale: 0.3; top: 45%; left: 15%;" id="metal">
 
 <!-- Foreground images -->
 <img src="assets/images/aboutme.png" class="fg-img" style="--scale: 0.3; top: 20%; left: 30%;" id="aboutme">
@@ -111,7 +115,7 @@
 <img src="assets/images/ttc.png" class="img" style="--scale: 0.25; top: 60%; left: 45%;" id="ttc">
 
 <script>
-    // Make sure foreground images do not overlap megan
+    // Make sure foreground images do not overlap Megan
     function adjustPositions() {
         const megan = document.getElementById('megan');
         const meganRect = megan.getBoundingClientRect();
