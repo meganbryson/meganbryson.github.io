@@ -10,7 +10,7 @@
         margin: 0;
         padding: 0;
         font-family: "Courier New", Courier, monospace;
-        overflow: hidden; /* prevent scroll */
+        overflow: hidden;
         background: #f0f0f0;
         position: relative;
     }
@@ -89,8 +89,11 @@
 const PHOTO_SCALE = 0.12;
 const TOTAL_PHOTOS = 24;
 
+const BASE_SPEED = 0.3; // your current max range basis
+const SPEED_VARIATION = 1.25; // 25% faster max
+
 const photosData = [];
-let topZ = 10; // 🔥 tracks highest z-index
+let topZ = 10;
 
 function bringToFront(el) {
     topZ++;
@@ -127,8 +130,11 @@ function createPhotos() {
             img.style.width = width + "px";
             img.style.height = height + "px";
 
-            const vx = (Math.random() - 0.5) * 0.3;
-            const vy = (Math.random() - 0.5) * 0.3;
+            // 🔥 RANDOMIZED SPEED (1.0 → 1.25 multiplier)
+            const speedMultiplier = 1 + Math.random() * (SPEED_VARIATION - 1);
+
+            const vx = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
+            const vy = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
 
             photosData.push({
                 el: img,
@@ -151,27 +157,23 @@ function animate() {
 
         let bounced = false;
 
-        // LEFT / RIGHT
         if (p.x <= 0 || p.x + p.width >= viewportWidth) {
             p.vx *= -1;
             bounced = true;
         }
 
-        // TOP BAR
         if (p.y <= topBarHeight) {
             p.y = topBarHeight;
             p.vy *= -1;
             bounced = true;
         }
 
-        // BOTTOM
         if (p.y + p.height >= viewportHeight) {
             p.y = viewportHeight - p.height;
             p.vy *= -1;
             bounced = true;
         }
 
-        // 🔥 bring to front on bounce
         if (bounced) {
             bringToFront(p.el);
         }
