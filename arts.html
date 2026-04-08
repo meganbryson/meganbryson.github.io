@@ -44,13 +44,6 @@
     .top-left { order: 1; }
     .top-right { order: 3; }
 
-    .content {
-        width: 80%;
-        margin: 5vh auto;
-        font-size: calc(16px + 0.5vw);
-        text-align: center;
-    }
-
     .photo {
         position: absolute;
         object-fit: cover;
@@ -62,22 +55,6 @@
         transform: scale(1.05);
         z-index: 20;
     }
-
-    @media (max-width: 768px) {
-        .top-bar { height: 18vh; }
-
-        .top-bar img {
-            height: 55%;
-            max-height: 80px;
-        }
-
-        .top-center { height: 55%; }
-
-        .content {
-            width: 90%;
-            font-size: calc(14px + 1vw);
-        }
-    }
 </style>
 </head>
 
@@ -85,17 +62,15 @@
 
 <div class="top-bar">
     <a href="/menu.html">
-        <img src="assets/images/menu.png" class="top-left">
+        <img src="assets/images/menu.png">
     </a>
 
     <img src="assets/images/creative.jpg" class="top-center">
 
     <a href="/">
-        <img src="assets/images/megan.png" class="top-right">
+        <img src="assets/images/megan.png">
     </a>
 </div>
-
-<div class="content"></div>
 
 <script>
 const PHOTO_SCALE = 0.18;
@@ -106,12 +81,20 @@ const photosData = [];
 function createPhotos() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
-    const viewportHeight = document.body.scrollHeight;
+    const pageHeight = document.body.scrollHeight;
+
+    const spawnMinY = topBarHeight;
+    const spawnMaxY = pageHeight * 0.5; // 🔥 only top 50%
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
         img.src = `assets/images/shots/photo${i}.jpg`;
         img.className = "photo";
+
+        img.onerror = () => {
+            console.warn("Failed to load:", img.src);
+            img.remove();
+        };
 
         document.body.appendChild(img);
 
@@ -123,12 +106,11 @@ function createPhotos() {
             const height = baseWidth * aspectRatio;
 
             let x = Math.random() * (viewportWidth - width);
-            let y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
+            let y = Math.random() * (spawnMaxY - spawnMinY - height) + spawnMinY;
 
             img.style.width = width + "px";
             img.style.height = height + "px";
 
-            // random slow velocity
             const vx = (Math.random() - 0.5) * 0.3;
             const vy = (Math.random() - 0.5) * 0.3;
 
@@ -145,25 +127,27 @@ function createPhotos() {
 function animate() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
-    const viewportHeight = document.body.scrollHeight;
+    const pageHeight = document.body.scrollHeight;
+    const maxY = pageHeight * 0.5; // 🔥 movement capped to top 50%
 
     photosData.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
 
-        // LEFT / RIGHT bounce
+        // left/right bounce
         if (p.x <= 0 || p.x + p.width >= viewportWidth) {
             p.vx *= -1;
         }
 
-        // TOP BAR bounce (no-go zone)
+        // top bar boundary
         if (p.y <= topBarHeight) {
             p.y = topBarHeight;
             p.vy *= -1;
         }
 
-        // BOTTOM bounce
-        if (p.y + p.height >= viewportHeight) {
+        // bottom boundary (50% of page)
+        if (p.y + p.height >= maxY) {
+            p.y = maxY - p.height;
             p.vy *= -1;
         }
 
@@ -176,7 +160,7 @@ function animate() {
 
 window.onload = () => {
     createPhotos();
-    setTimeout(animate, 100); // slight delay to ensure images load
+    setTimeout(animate, 100);
 };
 </script>
 
