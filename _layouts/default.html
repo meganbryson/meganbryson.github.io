@@ -45,12 +45,13 @@
         position: absolute;
         transform: translate(-50%, -50%) scale(var(--scale, 1));
         transform-origin: center;
+        z-index: 50;
     }
 
     /* Mobile adjustments */
     @media (max-width: 768px) {
         .center {
-            height: 35vh; /* increase size on mobile */
+            height: 30vh; /* increase size on mobile */
         }
 
         .bg-img,
