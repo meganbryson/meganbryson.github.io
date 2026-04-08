@@ -57,22 +57,22 @@
         line-height: 1.6;
     }
 
-   .clickable img {
-        transition: transform 0.3s ease, opacity 0.3s ease;
-        cursor: pointer;
-    }
+  .btn {
+    position: absolute;
+    transform: translate(-50%, -50%) scale(var(--scale, 1));
+    width: 35vh;
+    height: auto;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    z-index: 20;
+}
 
-    .clickable img:hover,
-    .clickable img:active {
-        transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.1));
-        opacity: 0.85;
-    }
-     #art {
-            height: 30vh;
-        }
-     #computers {
-            height: 30vh;
-        }
+/* Hover effect */
+.clickable img:hover {
+    transform: translate(-50%, -50%) scale(calc(var(--scale, 1) * 1.1));
+    opacity: 0.85;
+    cursor: pointer;
+}
+    
     /* Mobile adjustments */
     @media (max-width: 768px) {
         .top-bar {
@@ -117,11 +117,11 @@
 
 <div class="content">
     <a href="/arts.html" class="clickable">
-        <img src="assets/images/creative.jpg" class="clickable" id="art" alt="art">
+        <img src="assets/images/creative.jpg" class="btn" id="art" alt="art">
     </a>
 
     <a href="/computers.html" class="clickable">
-        <img src="assets/images/computers.jpg" class="clickable" id="computers" alt="computers">
+        <img src="assets/images/computers.jpg" class="btn" id="computers" alt="computers">
     </a>
 
 </div>
