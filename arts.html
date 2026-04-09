@@ -57,6 +57,17 @@
         z-index: 2000;
     }
 
+     /* Middle content */
+    .content {
+        width: 80%;
+        margin: 5vh auto;
+        font-size: calc(16px + 0.5vw);
+        text-align: center;
+        line-height: 1.6;
+    }
+
+
+
     @media (max-width: 768px) {
         .top-bar { height: 18vh; }
 
@@ -67,6 +78,10 @@
 
         .top-center {
             height: 55%;
+        }
+         .content {
+            width: 90%;
+            font-size: calc(14px + 1vw);
         }
     }
 </style>
@@ -200,6 +215,11 @@ window.onload = () => {
     setTimeout(animate, 100);
 };
 </script>
-
+<div class="content">
+    <p>
+        i like to make collages out of garbage/recyling. i also like to take pictures. here is some of those things.<br>
+        if you want to see more <a href="/contact.html">hmu<br></a>. 
+    </p>
+</div>
 </body>
 </html>
