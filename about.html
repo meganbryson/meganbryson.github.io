@@ -41,6 +41,12 @@
         height: 80%;
     }
 
+    .img {
+        position: absolute;
+        transform: translate(-50%, -50%) scale(var(--scale, 1));
+        transform-origin: center;
+        z-index: 50;
+    }
     .top-left {
         order: 1;
     }
@@ -102,7 +108,7 @@
         woman of few words and many pictures.
     </p>
 </div>
-<img src="assets/images/coins.png" style="height: 20vh; top: 75%; left: 30%;" id="coins">
-<img src="assets/images/drivers.png" style="height: 20vh; top: 40%; left: 60%;" id="drivers">
+<img src="assets/images/coins.png" class = "img" style="height: 20vh; top: 75%; left: 30%;" id="coins">
+<img src="assets/images/drivers.png" class = "img" style="height: 20vh; top: 40%; left: 60%;" id="drivers">
 </body>
 </html>
