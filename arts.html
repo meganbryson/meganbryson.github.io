@@ -57,7 +57,6 @@
         z-index: 2000;
     }
 
-     /* Middle content */
     .content {
         width: 80%;
         margin: 5vh auto;
@@ -65,8 +64,6 @@
         text-align: center;
         line-height: 1.6;
     }
-
-
 
     @media (max-width: 768px) {
         .top-bar { height: 18vh; }
@@ -79,7 +76,8 @@
         .top-center {
             height: 55%;
         }
-         .content {
+
+        .content {
             width: 90%;
             font-size: calc(14px + 1vw);
         }
@@ -103,15 +101,16 @@
 
 <script>
 const PHOTO_SCALE = 0.12;
-const TOTAL_PHOTOS = 25;
+const HERO_SCALE = 0.28; // 🔥 bigger for photo25
+const TOTAL_PHOTOS = 24;
 
 const BASE_SPEED = 0.3;
 const SPEED_VARIATION = 1.25;
 
-const MOBILE_SCALE_MULTIPLIER = 1.6; // 🔥 30% bigger on mobile
+const MOBILE_SCALE_MULTIPLIER = 1.6;
 
 const photosData = [];
-let topZ = 10;
+let topZ = 100; // 🔥 start higher so hero is above everything
 
 function bringToFront(el) {
     topZ++;
@@ -122,31 +121,22 @@ function createPhotos() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-
     const isMobile = window.innerWidth <= 768;
 
+    // 🔹 Regular photos (1–24)
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
         img.src = `assets/images/shots/photo${i}.jpg`;
         img.className = "photo";
 
-        img.onerror = () => {
-            console.warn("Missing:", img.src);
-            img.remove();
-        };
-
+        img.onerror = () => img.remove();
         document.body.appendChild(img);
 
         img.onload = () => {
             let baseWidth = viewportWidth * PHOTO_SCALE;
-
-            // 🔥 Apply mobile scaling
-            if (isMobile) {
-                baseWidth *= MOBILE_SCALE_MULTIPLIER;
-            }
+            if (isMobile) baseWidth *= MOBILE_SCALE_MULTIPLIER;
 
             const aspectRatio = img.naturalHeight / img.naturalWidth;
-
             const width = baseWidth;
             const height = baseWidth * aspectRatio;
 
@@ -157,18 +147,44 @@ function createPhotos() {
             img.style.height = height + "px";
 
             const speedMultiplier = 1 + Math.random() * (SPEED_VARIATION - 1);
-
             const vx = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
             const vy = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
 
-            photosData.push({
-                el: img,
-                x, y,
-                width, height,
-                vx, vy
-            });
+            photosData.push({ el: img, x, y, width, height, vx, vy });
         };
     }
+
+    // 🔥 HERO PHOTO (photo25)
+    const hero = document.createElement("img");
+    hero.src = `assets/images/shots/photo25.jpg`;
+    hero.className = "photo";
+
+    hero.onerror = () => hero.remove();
+    document.body.appendChild(hero);
+
+    hero.onload = () => {
+        let baseWidth = viewportWidth * HERO_SCALE;
+        if (isMobile) baseWidth *= MOBILE_SCALE_MULTIPLIER;
+
+        const aspectRatio = hero.naturalHeight / hero.naturalWidth;
+        const width = baseWidth;
+        const height = baseWidth * aspectRatio;
+
+        // 🔥 CENTER POSITION
+        let x = (viewportWidth - width) / 2;
+        let y = (viewportHeight - height) / 2;
+
+        hero.style.width = width + "px";
+        hero.style.height = height + "px";
+
+        // 🔥 ALWAYS ON TOP INITIALLY
+        hero.style.zIndex = topZ + 100;
+
+        const vx = (Math.random() - 0.5) * BASE_SPEED;
+        const vy = (Math.random() - 0.5) * BASE_SPEED;
+
+        photosData.push({ el: hero, x, y, width, height, vx, vy });
+    };
 }
 
 function animate() {
@@ -199,9 +215,7 @@ function animate() {
             bounced = true;
         }
 
-        if (bounced) {
-            bringToFront(p.el);
-        }
+        if (bounced) bringToFront(p.el);
 
         p.el.style.left = p.x + "px";
         p.el.style.top = p.y + "px";
@@ -215,9 +229,11 @@ window.onload = () => {
     setTimeout(animate, 100);
 };
 </script>
+
 <div class="content">
     <p>
     </p>
 </div>
+
 </body>
 </html>
