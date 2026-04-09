@@ -41,12 +41,6 @@
         height: 80%;
     }
 
-    .imagess {
-        position: absolute;
-        transform: translate(-50%, -50%) scale(var(--scale, 1));
-        transform-origin: center;
-        z-index: 50;
-    }
     .top-left {
         order: 1;
     }
@@ -63,12 +57,38 @@
         text-align: center;
         line-height: 1.6;
     }
-
-
-        #coins {height: 20vh; top: 75%; left: 30% !important; }
-        #drivers {height: 15vh; top: 80; left: 60%; !important; }
+    .imagess {
+        position: absolute;
+        transform: translate(-50%, -50%) scale(var(--scale, 1));
+        transform-origin: center;
+        z-index: 50;
     }
+    @media (max-width: 768px) {
+        .top-bar {
+            height: 18vh;
+        }
+
+        /* 🔽 Make images smaller on mobile */
+        .top-bar img {
+            height: 55%;        /* smaller than before */
+            max-height: 80px;   /* cap size */
+        }
+
+        .top-center {
+            height: 55%; /* keep center consistent */
+        }
+
+        .content {
+            width: 90%;
+            font-size: calc(14px + 1vw);
+        }
+
+    #coins {height: 20vh; top: 75%; left: 30% !important; }
+    #drivers {height: 15vh; top: 80; left: 60%; !important; }
     }
+        
+    
+
 </style>
 </head>
 <body>
