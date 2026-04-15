@@ -106,7 +106,6 @@ const GLOBAL_SIZE_MULTIPLIER = 0.75;
 // 🔥 CLICK EXPAND CONTROL
 const EXPAND_SCALE_MULTIPLIER = 0.8;
 
-// base scales
 const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
 
@@ -130,7 +129,10 @@ function addClickExpand(img, dataObj) {
         if (img.dataset.expanded === "true") return;
 
         img.dataset.expanded = "true";
-        bringToFront(img);
+
+        // 🔥 FORCE ABOVE EVERYTHING (including text.jpg)
+        topZ += 1000;
+        img.style.zIndex = topZ;
 
         const original = {
             width: dataObj.width,
@@ -142,14 +144,18 @@ function addClickExpand(img, dataObj) {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        // 🔥 uses multiplier
-        let targetWidth = Math.min(
-            800,
-            viewportWidth * EXPAND_SCALE_MULTIPLIER
-        );
-
         const aspectRatio = img.naturalHeight / img.naturalWidth;
+
+        const maxWidth = Math.min(800, viewportWidth * EXPAND_SCALE_MULTIPLIER);
+        const maxHeight = viewportHeight * EXPAND_SCALE_MULTIPLIER;
+
+        let targetWidth = maxWidth;
         let targetHeight = targetWidth * aspectRatio;
+
+        if (targetHeight > maxHeight) {
+            targetHeight = maxHeight;
+            targetWidth = targetHeight / aspectRatio;
+        }
 
         let targetX = (viewportWidth - targetWidth) / 2;
         let targetY = (viewportHeight - targetHeight) / 2;
@@ -234,7 +240,7 @@ function createPhotos() {
 
         hero.style.width = width + "px";
         hero.style.height = height + "px";
-        hero.style.zIndex = topZ + 100;
+        hero.style.zIndex = 999; // 🔥 base hero level
 
         const vx = (Math.random() - 0.5) * BASE_SPEED;
         const vy = (Math.random() - 0.5) * BASE_SPEED;
