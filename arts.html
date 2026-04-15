@@ -50,11 +50,11 @@
         border-radius: 4px;
         z-index: 1;
         cursor: pointer;
+        transition: transform 0.2s ease;
     }
 
     .photo:hover {
-        transform: scale(2);
-        z-index: 2000;
+        transform: scale(1.05);
     }
 
     .content {
@@ -100,11 +100,8 @@
 </div>
 
 <script>
-// 🔥 MAIN SIZE CONTROL
 const GLOBAL_SIZE_MULTIPLIER = 0.75;
-
-// 🔥 CLICK EXPAND CONTROL
-const EXPAND_SCALE_MULTIPLIER = 0.4;
+const EXPAND_SCALE_MULTIPLIER = 0.8;
 
 const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
@@ -124,13 +121,19 @@ function bringToFront(el) {
     el.style.zIndex = topZ;
 }
 
+// 🔥 NEW: reliable hover behavior
+function addHoverBehavior(img) {
+    img.addEventListener("mouseenter", () => {
+        bringToFront(img);
+    });
+}
+
 function addClickExpand(img, dataObj) {
     img.addEventListener("click", () => {
         if (img.dataset.expanded === "true") return;
 
         img.dataset.expanded = "true";
 
-        // 🔥 FORCE ABOVE EVERYTHING (including text.jpg)
         topZ += 1000;
         img.style.zIndex = topZ;
 
@@ -201,6 +204,7 @@ function createPhotos() {
         img.onerror = () => img.remove();
         document.body.appendChild(img);
 
+        addHoverBehavior(img); // 🔥 added
         img.onload = () => {
             const width = getScaledWidth(PHOTO_SCALE, viewportWidth, isMobile);
             const aspectRatio = img.naturalHeight / img.naturalWidth;
@@ -230,6 +234,8 @@ function createPhotos() {
     hero.onerror = () => hero.remove();
     document.body.appendChild(hero);
 
+    addHoverBehavior(hero); // 🔥 added
+
     hero.onload = () => {
         const width = getScaledWidth(HERO_SCALE, viewportWidth, isMobile);
         const aspectRatio = hero.naturalHeight / hero.naturalWidth;
@@ -240,7 +246,7 @@ function createPhotos() {
 
         hero.style.width = width + "px";
         hero.style.height = height + "px";
-        hero.style.zIndex = 999; // 🔥 base hero level
+        hero.style.zIndex = 999;
 
         const vx = (Math.random() - 0.5) * BASE_SPEED;
         const vy = (Math.random() - 0.5) * BASE_SPEED;
