@@ -121,7 +121,6 @@ function bringToFront(el) {
     el.style.zIndex = topZ;
 }
 
-// 🔥 NEW: reliable hover behavior
 function addHoverBehavior(img) {
     img.addEventListener("mouseenter", () => {
         bringToFront(img);
@@ -146,6 +145,7 @@ function addClickExpand(img, dataObj) {
 
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
+        const isMobile = viewportWidth <= 768;
 
         const aspectRatio = img.naturalHeight / img.naturalWidth;
 
@@ -160,8 +160,36 @@ function addClickExpand(img, dataObj) {
             targetWidth = targetHeight / aspectRatio;
         }
 
-        let targetX = (viewportWidth - targetWidth) / 2;
-        let targetY = (viewportHeight - targetHeight) / 2;
+        let targetX, targetY;
+
+        if (isMobile) {
+            // 🔥 SMART MOBILE POSITIONING
+
+            const currentCenterX = dataObj.x + dataObj.width / 2;
+            const currentCenterY = dataObj.y + dataObj.height / 2;
+
+            const screenCenterX = viewportWidth / 2;
+            const screenCenterY = viewportHeight / 2;
+
+            // blend between current position and center
+            const blend = 0.6; // 🔥 tweak this (0 = stay, 1 = full center)
+
+            const finalCenterX = currentCenterX * (1 - blend) + screenCenterX * blend;
+            const finalCenterY = currentCenterY * (1 - blend) + screenCenterY * blend;
+
+            targetX = finalCenterX - targetWidth / 2;
+            targetY = finalCenterY - targetHeight / 2;
+
+            // 🔥 clamp fully inside screen with padding
+            const padding = 10;
+
+            targetX = Math.max(padding, Math.min(targetX, viewportWidth - targetWidth - padding));
+            targetY = Math.max(padding, Math.min(targetY, viewportHeight - targetHeight - padding));
+        } else {
+            // desktop stays centered
+            targetX = (viewportWidth - targetWidth) / 2;
+            targetY = (viewportHeight - targetHeight) / 2;
+        }
 
         dataObj.width = targetWidth;
         dataObj.height = targetHeight;
@@ -204,7 +232,8 @@ function createPhotos() {
         img.onerror = () => img.remove();
         document.body.appendChild(img);
 
-        addHoverBehavior(img); // 🔥 added
+        addHoverBehavior(img);
+
         img.onload = () => {
             const width = getScaledWidth(PHOTO_SCALE, viewportWidth, isMobile);
             const aspectRatio = img.naturalHeight / img.naturalWidth;
@@ -234,7 +263,7 @@ function createPhotos() {
     hero.onerror = () => hero.remove();
     document.body.appendChild(hero);
 
-    addHoverBehavior(hero); // 🔥 added
+    addHoverBehavior(hero);
 
     hero.onload = () => {
         const width = getScaledWidth(HERO_SCALE, viewportWidth, isMobile);
