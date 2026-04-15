@@ -50,7 +50,10 @@
         border-radius: 4px;
         z-index: 1;
         cursor: pointer;
-        transition: transform 0.2s ease;
+        transition: transform 0.2s ease, opacity 0.2s ease;
+
+        /* 🔥 FIX: prevent initial flash/zoom */
+        opacity: 0;
     }
 
     .photo:hover {
@@ -101,10 +104,6 @@
 
 <script>
 const GLOBAL_SIZE_MULTIPLIER = 0.75;
-
-// 🔥 MOBILE EXPAND CONTROL (LOWER = smaller popups)
-const MOBILE_EXPAND_MULTIPLIER = 0.55;
-
 const EXPAND_SCALE_MULTIPLIER = 0.8;
 
 const PHOTO_SCALE = 0.18;
@@ -153,17 +152,8 @@ function addClickExpand(img, dataObj) {
 
         const aspectRatio = img.naturalHeight / img.naturalWidth;
 
-        let maxWidth;
-        let maxHeight;
-
-        if (isMobile) {
-            // 🔥 SMALLER MOBILE EXPANSION (FIX)
-            maxWidth = viewportWidth * MOBILE_EXPAND_MULTIPLIER;
-            maxHeight = viewportHeight * MOBILE_EXPAND_MULTIPLIER;
-        } else {
-            maxWidth = Math.min(800, viewportWidth * EXPAND_SCALE_MULTIPLIER);
-            maxHeight = viewportHeight * EXPAND_SCALE_MULTIPLIER;
-        }
+        const maxWidth = Math.min(800, viewportWidth * EXPAND_SCALE_MULTIPLIER);
+        const maxHeight = viewportHeight * EXPAND_SCALE_MULTIPLIER;
 
         let targetWidth = maxWidth;
         let targetHeight = targetWidth * aspectRatio;
@@ -173,13 +163,30 @@ function addClickExpand(img, dataObj) {
             targetWidth = targetHeight / aspectRatio;
         }
 
-        let targetX = (viewportWidth - targetWidth) / 2;
-        let targetY = (viewportHeight - targetHeight) / 2;
+        let targetX, targetY;
 
-        // 🔥 HARD CLAMP (safety net)
-        const padding = 12;
-        targetX = Math.max(padding, Math.min(targetX, viewportWidth - targetWidth - padding));
-        targetY = Math.max(padding, Math.min(targetY, viewportHeight - targetHeight - padding));
+        if (isMobile) {
+            const currentCenterX = dataObj.x + dataObj.width / 2;
+            const currentCenterY = dataObj.y + dataObj.height / 2;
+
+            const screenCenterX = viewportWidth / 2;
+            const screenCenterY = viewportHeight / 2;
+
+            const blend = 0.6;
+
+            const finalCenterX = currentCenterX * (1 - blend) + screenCenterX * blend;
+            const finalCenterY = currentCenterY * (1 - blend) + screenCenterY * blend;
+
+            targetX = finalCenterX - targetWidth / 2;
+            targetY = finalCenterY - targetHeight / 2;
+
+            const padding = 10;
+            targetX = Math.max(padding, Math.min(targetX, viewportWidth - targetWidth - padding));
+            targetY = Math.max(padding, Math.min(targetY, viewportHeight - targetHeight - padding));
+        } else {
+            targetX = (viewportWidth - targetWidth) / 2;
+            targetY = (viewportHeight - targetHeight) / 2;
+        }
 
         dataObj.width = targetWidth;
         dataObj.height = targetHeight;
@@ -212,7 +219,6 @@ function getScaledWidth(baseScale, viewportWidth, isMobile) {
 function createPhotos() {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const isMobile = viewportWidth <= 768;
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
@@ -231,7 +237,7 @@ function createPhotos() {
             const height = width * aspectRatio;
 
             let x = Math.random() * (viewportWidth - width);
-            let y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
+            let y = Math.random() * (viewportHeight - height);
 
             img.style.width = width + "px";
             img.style.height = height + "px";
@@ -244,6 +250,11 @@ function createPhotos() {
             photosData.push(obj);
 
             addClickExpand(img, obj);
+
+            // 🔥 FIX: reveal only AFTER layout is correct
+            img.style.left = x + "px";
+            img.style.top = y + "px";
+            img.style.opacity = "1";
         };
     }
 
@@ -275,6 +286,11 @@ function createPhotos() {
         photosData.push(obj);
 
         addClickExpand(hero, obj);
+
+        // 🔥 FIX: reveal hero only after placement
+        hero.style.left = x + "px";
+        hero.style.top = y + "px";
+        hero.style.opacity = "1";
     };
 }
 
@@ -289,17 +305,26 @@ function animate() {
         p.x += p.vx;
         p.y += p.vy;
 
-        if (p.x <= 0 || p.x + p.width >= viewportWidth) p.vx *= -1;
+        let bounced = false;
+
+        if (p.x <= 0 || p.x + p.width >= viewportWidth) {
+            p.vx *= -1;
+            bounced = true;
+        }
 
         if (p.y <= topBarHeight) {
             p.y = topBarHeight;
             p.vy *= -1;
+            bounced = true;
         }
 
         if (p.y + p.height >= viewportHeight) {
             p.y = viewportHeight - p.height;
             p.vy *= -1;
+            bounced = true;
         }
+
+        if (bounced) bringToFront(p.el);
 
         p.el.style.left = p.x + "px";
         p.el.style.top = p.y + "px";
@@ -308,13 +333,38 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+function handleResize() {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const isMobile = viewportWidth <= 768;
+
+    photosData.forEach(p => {
+        let base = p.el.src.includes("text.jpg") ? HERO_SCALE : PHOTO_SCALE;
+        const width = getScaledWidth(base, viewportWidth, isMobile);
+        const aspectRatio = p.el.naturalHeight / p.el.naturalWidth;
+
+        p.width = width;
+        p.height = width * aspectRatio;
+
+        p.x = Math.min(p.x, viewportWidth - p.width);
+        p.y = Math.min(p.y, viewportHeight - p.height);
+
+        p.el.style.width = p.width + "px";
+        p.el.style.height = p.height + "px";
+    });
+}
+
+window.addEventListener("resize", handleResize);
+
 window.onload = () => {
     createPhotos();
     setTimeout(animate, 100);
 };
 </script>
 
-<div class="content"></div>
+<div class="content">
+    <p></p>
+</div>
 
 </body>
 </html>
