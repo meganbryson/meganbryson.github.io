@@ -48,7 +48,6 @@
         position: absolute;
         object-fit: cover;
         border-radius: 4px;
-        will-change: transform;
         z-index: 1;
         cursor: pointer;
     }
@@ -101,7 +100,11 @@
 </div>
 
 <script>
-const PHOTO_SCALE = 0.18; // 🔥 bigger base size
+// 🔥 MAIN CONTROL (adjust this)
+const GLOBAL_SIZE_MULTIPLIER = 0.75;
+
+// base scales
+const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
 
 const TOTAL_PHOTOS = 25;
@@ -109,8 +112,8 @@ const TOTAL_PHOTOS = 25;
 const BASE_SPEED = 0.3;
 const SPEED_VARIATION = 1.25;
 
-// 🔥 better for mobile clarity
-const MOBILE_SCALE_MULTIPLIER = 2.2;
+// mobile boost (also affected by global multiplier)
+const MOBILE_SCALE_MULTIPLIER = 2.0;
 
 const photosData = [];
 let topZ = 100;
@@ -120,7 +123,6 @@ function bringToFront(el) {
     el.style.zIndex = topZ;
 }
 
-// 🔥 TRUE high-res expand (no transform scaling)
 function addClickExpand(img, dataObj) {
     img.addEventListener("click", () => {
         if (img.dataset.expanded === "true") return;
@@ -128,7 +130,6 @@ function addClickExpand(img, dataObj) {
         img.dataset.expanded = "true";
         bringToFront(img);
 
-        // store original
         const original = {
             width: dataObj.width,
             height: dataObj.height,
@@ -139,16 +140,13 @@ function addClickExpand(img, dataObj) {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        // 🔥 expand to large but within image's real resolution
         let targetWidth = Math.min(800, viewportWidth * 0.9);
         const aspectRatio = img.naturalHeight / img.naturalWidth;
         let targetHeight = targetWidth * aspectRatio;
 
-        // center it
         let targetX = (viewportWidth - targetWidth) / 2;
         let targetY = (viewportHeight - targetHeight) / 2;
 
-        // apply
         dataObj.width = targetWidth;
         dataObj.height = targetHeight;
         dataObj.x = targetX;
@@ -158,7 +156,6 @@ function addClickExpand(img, dataObj) {
         img.style.height = targetHeight + "px";
 
         setTimeout(() => {
-            // restore
             dataObj.width = original.width;
             dataObj.height = original.height;
             dataObj.x = original.x;
@@ -170,6 +167,12 @@ function addClickExpand(img, dataObj) {
             img.dataset.expanded = "false";
         }, 3000);
     });
+}
+
+function getScaledWidth(baseScale, viewportWidth, isMobile) {
+    let scale = baseScale * GLOBAL_SIZE_MULTIPLIER;
+    if (isMobile) scale *= MOBILE_SCALE_MULTIPLIER;
+    return viewportWidth * scale;
 }
 
 function createPhotos() {
@@ -186,12 +189,9 @@ function createPhotos() {
         document.body.appendChild(img);
 
         img.onload = () => {
-            let baseWidth = viewportWidth * PHOTO_SCALE;
-            if (isMobile) baseWidth *= MOBILE_SCALE_MULTIPLIER;
-
+            const width = getScaledWidth(PHOTO_SCALE, viewportWidth, isMobile);
             const aspectRatio = img.naturalHeight / img.naturalWidth;
-            const width = baseWidth;
-            const height = baseWidth * aspectRatio;
+            const height = width * aspectRatio;
 
             let x = Math.random() * (viewportWidth - width);
             let y = Math.random() * (viewportHeight - height);
@@ -218,12 +218,9 @@ function createPhotos() {
     document.body.appendChild(hero);
 
     hero.onload = () => {
-        let baseWidth = viewportWidth * HERO_SCALE;
-        if (isMobile) baseWidth *= MOBILE_SCALE_MULTIPLIER;
-
+        const width = getScaledWidth(HERO_SCALE, viewportWidth, isMobile);
         const aspectRatio = hero.naturalHeight / hero.naturalWidth;
-        const width = baseWidth;
-        const height = baseWidth * aspectRatio;
+        const height = width * aspectRatio;
 
         let x = (viewportWidth - width) / 2;
         let y = (viewportHeight - height) / 2;
@@ -287,12 +284,12 @@ function handleResize() {
     const isMobile = viewportWidth <= 768;
 
     photosData.forEach(p => {
-        let scale = p.el.src.includes("text.jpg") ? HERO_SCALE : PHOTO_SCALE;
-        if (isMobile) scale *= MOBILE_SCALE_MULTIPLIER;
-
+        let base = p.el.src.includes("text.jpg") ? HERO_SCALE : PHOTO_SCALE;
+        const width = getScaledWidth(base, viewportWidth, isMobile);
         const aspectRatio = p.el.naturalHeight / p.el.naturalWidth;
-        p.width = viewportWidth * scale;
-        p.height = p.width * aspectRatio;
+
+        p.width = width;
+        p.height = width * aspectRatio;
 
         p.x = Math.min(p.x, viewportWidth - p.width);
         p.y = Math.min(p.y, viewportHeight - p.height);
