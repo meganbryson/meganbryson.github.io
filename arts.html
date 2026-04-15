@@ -101,7 +101,7 @@
 
 <script>
 const PHOTO_SCALE = 0.12;
-const HERO_SCALE = 0.28; // 🔥 bigger for photo25
+const HERO_SCALE = 0.28;
 const TOTAL_PHOTOS = 25;
 
 const BASE_SPEED = 0.3;
@@ -110,7 +110,7 @@ const SPEED_VARIATION = 1.25;
 const MOBILE_SCALE_MULTIPLIER = 1.6;
 
 const photosData = [];
-let topZ = 100; // 🔥 start higher so hero is above everything
+let topZ = 100;
 
 function bringToFront(el) {
     topZ++;
@@ -118,12 +118,10 @@ function bringToFront(el) {
 }
 
 function createPhotos() {
-    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    const isMobile = window.innerWidth <= 768;
+    const isMobile = viewportWidth <= 768;
 
-    // 🔹 Regular photos (1–24)
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
         img.src = `assets/images/shots/photo${i}.jpg`;
@@ -141,7 +139,7 @@ function createPhotos() {
             const height = baseWidth * aspectRatio;
 
             let x = Math.random() * (viewportWidth - width);
-            let y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
+            let y = Math.random() * (viewportHeight - height);
 
             img.style.width = width + "px";
             img.style.height = height + "px";
@@ -154,7 +152,6 @@ function createPhotos() {
         };
     }
 
-    // 🔥 HERO PHOTO (photo25)
     const hero = document.createElement("img");
     hero.src = `assets/images/shots/text.jpg`;
     hero.className = "photo";
@@ -170,14 +167,11 @@ function createPhotos() {
         const width = baseWidth;
         const height = baseWidth * aspectRatio;
 
-        // 🔥 CENTER POSITION
         let x = (viewportWidth - width) / 2;
         let y = (viewportHeight - height) / 2;
 
         hero.style.width = width + "px";
         hero.style.height = height + "px";
-
-        // 🔥 ALWAYS ON TOP INITIALLY
         hero.style.zIndex = topZ + 100;
 
         const vx = (Math.random() - 0.5) * BASE_SPEED;
@@ -224,6 +218,31 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
+// 🔥 FIX: recompute sizes/positions on resize (zoom)
+function handleResize() {
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const isMobile = viewportWidth <= 768;
+
+    photosData.forEach(p => {
+        let scale = p.el.src.includes("text.jpg") ? HERO_SCALE : PHOTO_SCALE;
+        if (isMobile) scale *= MOBILE_SCALE_MULTIPLIER;
+
+        const aspectRatio = p.el.naturalHeight / p.el.naturalWidth;
+        p.width = viewportWidth * scale;
+        p.height = p.width * aspectRatio;
+
+        // keep position inside bounds instead of stacking
+        p.x = Math.min(p.x, viewportWidth - p.width);
+        p.y = Math.min(p.y, viewportHeight - p.height);
+
+        p.el.style.width = p.width + "px";
+        p.el.style.height = p.height + "px";
+    });
+}
+
+window.addEventListener("resize", handleResize);
+
 window.onload = () => {
     createPhotos();
     setTimeout(animate, 100);
@@ -231,8 +250,7 @@ window.onload = () => {
 </script>
 
 <div class="content">
-    <p>
-    </p>
+    <p></p>
 </div>
 
 </body>
