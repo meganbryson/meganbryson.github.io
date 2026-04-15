@@ -163,30 +163,43 @@ function addClickExpand(img, dataObj) {
         let targetX, targetY;
 
         if (isMobile) {
-            // 🔥 SMART MOBILE POSITIONING
 
-            const currentCenterX = dataObj.x + dataObj.width / 2;
-            const currentCenterY = dataObj.y + dataObj.height / 2;
+            // 🔥 current center of image
+            const imgCenterX = dataObj.x + dataObj.width / 2;
+            const imgCenterY = dataObj.y + dataObj.height / 2;
 
             const screenCenterX = viewportWidth / 2;
             const screenCenterY = viewportHeight / 2;
 
-            // blend between current position and center
-            const blend = 0.6; // 🔥 tweak this (0 = stay, 1 = full center)
+            // distance from center (- = left side, + = right side)
+            const offsetX = imgCenterX - screenCenterX;
 
-            const finalCenterX = currentCenterX * (1 - blend) + screenCenterX * blend;
-            const finalCenterY = currentCenterY * (1 - blend) + screenCenterY * blend;
+            // 🔥 bias: push toward center but preserve side awareness
+            const biasStrength = 0.75;
+
+            let finalCenterX = imgCenterX - offsetX * biasStrength;
+            let finalCenterY = screenCenterY;
+
+            // extra correction: if far right, pull more left
+            if (offsetX > 0) {
+                finalCenterX -= Math.min(offsetX * 0.3, viewportWidth * 0.15);
+            }
+
+            // if far left, push slightly right
+            if (offsetX < 0) {
+                finalCenterX -= Math.max(offsetX * 0.3, -viewportWidth * 0.15);
+            }
 
             targetX = finalCenterX - targetWidth / 2;
             targetY = finalCenterY - targetHeight / 2;
 
-            // 🔥 clamp fully inside screen with padding
-            const padding = 10;
-
+            // clamp safely inside screen
+            const padding = 12;
             targetX = Math.max(padding, Math.min(targetX, viewportWidth - targetWidth - padding));
             targetY = Math.max(padding, Math.min(targetY, viewportHeight - targetHeight - padding));
+
         } else {
-            // desktop stays centered
+            // desktop unchanged
             targetX = (viewportWidth - targetWidth) / 2;
             targetY = (viewportHeight - targetHeight) / 2;
         }
@@ -222,6 +235,7 @@ function getScaledWidth(baseScale, viewportWidth, isMobile) {
 function createPhotos() {
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const isMobile = viewportWidth <= 768;
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
@@ -240,7 +254,7 @@ function createPhotos() {
             const height = width * aspectRatio;
 
             let x = Math.random() * (viewportWidth - width);
-            let y = Math.random() * (viewportHeight - height);
+            let y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
 
             img.style.width = width + "px";
             img.style.height = height + "px";
@@ -298,26 +312,17 @@ function animate() {
         p.x += p.vx;
         p.y += p.vy;
 
-        let bounced = false;
-
-        if (p.x <= 0 || p.x + p.width >= viewportWidth) {
-            p.vx *= -1;
-            bounced = true;
-        }
+        if (p.x <= 0 || p.x + p.width >= viewportWidth) p.vx *= -1;
 
         if (p.y <= topBarHeight) {
             p.y = topBarHeight;
             p.vy *= -1;
-            bounced = true;
         }
 
         if (p.y + p.height >= viewportHeight) {
             p.y = viewportHeight - p.height;
             p.vy *= -1;
-            bounced = true;
         }
-
-        if (bounced) bringToFront(p.el);
 
         p.el.style.left = p.x + "px";
         p.el.style.top = p.y + "px";
@@ -326,38 +331,13 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-function handleResize() {
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const isMobile = viewportWidth <= 768;
-
-    photosData.forEach(p => {
-        let base = p.el.src.includes("text.jpg") ? HERO_SCALE : PHOTO_SCALE;
-        const width = getScaledWidth(base, viewportWidth, isMobile);
-        const aspectRatio = p.el.naturalHeight / p.el.naturalWidth;
-
-        p.width = width;
-        p.height = width * aspectRatio;
-
-        p.x = Math.min(p.x, viewportWidth - p.width);
-        p.y = Math.min(p.y, viewportHeight - p.height);
-
-        p.el.style.width = p.width + "px";
-        p.el.style.height = p.height + "px";
-    });
-}
-
-window.addEventListener("resize", handleResize);
-
 window.onload = () => {
     createPhotos();
     setTimeout(animate, 100);
 };
 </script>
 
-<div class="content">
-    <p></p>
-</div>
+<div class="content"></div>
 
 </body>
 </html>
