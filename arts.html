@@ -100,8 +100,11 @@
 </div>
 
 <script>
-// 🔥 MAIN CONTROL (adjust this)
+// 🔥 MAIN SIZE CONTROL
 const GLOBAL_SIZE_MULTIPLIER = 0.75;
+
+// 🔥 CLICK EXPAND CONTROL
+const EXPAND_SCALE_MULTIPLIER = 0.9;
 
 // base scales
 const PHOTO_SCALE = 0.18;
@@ -112,7 +115,6 @@ const TOTAL_PHOTOS = 25;
 const BASE_SPEED = 0.3;
 const SPEED_VARIATION = 1.25;
 
-// mobile boost (also affected by global multiplier)
 const MOBILE_SCALE_MULTIPLIER = 2.0;
 
 const photosData = [];
@@ -140,7 +142,12 @@ function addClickExpand(img, dataObj) {
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
 
-        let targetWidth = Math.min(800, viewportWidth * 0.9);
+        // 🔥 uses multiplier
+        let targetWidth = Math.min(
+            800,
+            viewportWidth * EXPAND_SCALE_MULTIPLIER
+        );
+
         const aspectRatio = img.naturalHeight / img.naturalWidth;
         let targetHeight = targetWidth * aspectRatio;
 
