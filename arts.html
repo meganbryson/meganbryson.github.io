@@ -50,19 +50,12 @@
         border-radius: 4px;
         will-change: transform;
         z-index: 1;
-        transition: transform 0.3s ease;
         cursor: pointer;
     }
 
     .photo:hover {
-        transform: scale(2);
+        transform: scale(1.05);
         z-index: 2000;
-    }
-
-    /* 🔥 expanded state */
-    .photo.expanded {
-        transform: scale(3);
-        z-index: 5000 !important;
     }
 
     .content {
@@ -108,14 +101,16 @@
 </div>
 
 <script>
-const PHOTO_SCALE = 0.12;
-const HERO_SCALE = 0.28;
+const PHOTO_SCALE = 0.18; // 🔥 bigger base size
+const HERO_SCALE = 0.35;
+
 const TOTAL_PHOTOS = 25;
 
 const BASE_SPEED = 0.3;
 const SPEED_VARIATION = 1.25;
 
-const MOBILE_SCALE_MULTIPLIER = 1.6;
+// 🔥 better for mobile clarity
+const MOBILE_SCALE_MULTIPLIER = 2.2;
 
 const photosData = [];
 let topZ = 100;
@@ -125,16 +120,54 @@ function bringToFront(el) {
     el.style.zIndex = topZ;
 }
 
-// 🔥 click-to-expand
-function addClickExpand(img) {
+// 🔥 TRUE high-res expand (no transform scaling)
+function addClickExpand(img, dataObj) {
     img.addEventListener("click", () => {
-        if (img.classList.contains("expanded")) return;
+        if (img.dataset.expanded === "true") return;
 
-        img.classList.add("expanded");
+        img.dataset.expanded = "true";
         bringToFront(img);
 
+        // store original
+        const original = {
+            width: dataObj.width,
+            height: dataObj.height,
+            x: dataObj.x,
+            y: dataObj.y
+        };
+
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        // 🔥 expand to large but within image's real resolution
+        let targetWidth = Math.min(800, viewportWidth * 0.9);
+        const aspectRatio = img.naturalHeight / img.naturalWidth;
+        let targetHeight = targetWidth * aspectRatio;
+
+        // center it
+        let targetX = (viewportWidth - targetWidth) / 2;
+        let targetY = (viewportHeight - targetHeight) / 2;
+
+        // apply
+        dataObj.width = targetWidth;
+        dataObj.height = targetHeight;
+        dataObj.x = targetX;
+        dataObj.y = targetY;
+
+        img.style.width = targetWidth + "px";
+        img.style.height = targetHeight + "px";
+
         setTimeout(() => {
-            img.classList.remove("expanded");
+            // restore
+            dataObj.width = original.width;
+            dataObj.height = original.height;
+            dataObj.x = original.x;
+            dataObj.y = original.y;
+
+            img.style.width = original.width + "px";
+            img.style.height = original.height + "px";
+
+            img.dataset.expanded = "false";
         }, 3000);
     });
 }
@@ -151,8 +184,6 @@ function createPhotos() {
 
         img.onerror = () => img.remove();
         document.body.appendChild(img);
-
-        addClickExpand(img); // 🔥 attach here
 
         img.onload = () => {
             let baseWidth = viewportWidth * PHOTO_SCALE;
@@ -172,7 +203,10 @@ function createPhotos() {
             const vx = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
             const vy = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
 
-            photosData.push({ el: img, x, y, width, height, vx, vy });
+            const obj = { el: img, x, y, width, height, vx, vy };
+            photosData.push(obj);
+
+            addClickExpand(img, obj);
         };
     }
 
@@ -182,8 +216,6 @@ function createPhotos() {
 
     hero.onerror = () => hero.remove();
     document.body.appendChild(hero);
-
-    addClickExpand(hero); // 🔥 attach here
 
     hero.onload = () => {
         let baseWidth = viewportWidth * HERO_SCALE;
@@ -203,7 +235,10 @@ function createPhotos() {
         const vx = (Math.random() - 0.5) * BASE_SPEED;
         const vy = (Math.random() - 0.5) * BASE_SPEED;
 
-        photosData.push({ el: hero, x, y, width, height, vx, vy });
+        const obj = { el: hero, x, y, width, height, vx, vy };
+        photosData.push(obj);
+
+        addClickExpand(hero, obj);
     };
 }
 
@@ -213,6 +248,8 @@ function animate() {
     const viewportHeight = window.innerHeight;
 
     photosData.forEach(p => {
+        if (p.el.dataset.expanded === "true") return;
+
         p.x += p.vx;
         p.y += p.vy;
 
@@ -274,9 +311,7 @@ window.onload = () => {
 </script>
 
 <div class="content">
-    <p>
-        image quality is drastically lowered on mobile, for the best experience, visit on your computer
-    </p>
+    <p></p>
 </div>
 
 </body>
