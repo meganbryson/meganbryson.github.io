@@ -13,6 +13,10 @@
         margin: 0;
         overflow: hidden;
         background: transparent;
+
+        /* 🔥 FIX: prevent initial flash */
+        opacity: 0;
+        transition: opacity 0.25s ease;
     }
 
     /* Megan image always on top */
@@ -24,7 +28,6 @@
         z-index: 999;
     }
 
-    /* Background images */
     .bg-img {
         position: absolute;
         transform: translate(-50%, -50%) scale(var(--scale, 1));
@@ -32,7 +35,6 @@
         z-index: 10;
     }
 
-    /* Foreground images */
     .fg-img {
         position: absolute;
         transform: translate(-50%, -50%) scale(var(--scale, 1));
@@ -40,7 +42,6 @@
         z-index: 100;
     }
 
-    /* Other images */
     .img {
         position: absolute;
         transform: translate(-50%, -50%) scale(var(--scale, 1));
@@ -48,7 +49,6 @@
         z-index: 50;
     }
 
-    /* Shared clickable behavior */
     .clickable img {
         transition: transform 0.3s ease, opacity 0.3s ease;
         cursor: pointer;
@@ -60,7 +60,6 @@
         opacity: 0.85;
     }
 
-    /* Mobile adjustments */
     @media (max-width: 768px) {
         .center {
             left: 63%;
@@ -97,7 +96,6 @@
 <img src="assets/images/metalblack.png" class="bg-img" style="--scale: 0.3; top: 45%; left: 15%;" id="metal">
 
 <!-- Clickable Foreground -->
-
 <a href="/about.html" class="clickable">
     <img src="assets/images/aboutme.png" class="fg-img" style="--scale: 0.3; top: 20%; left: 30%;" id="aboutme">
 </a>
@@ -118,12 +116,10 @@
     <img src="assets/images/menu.png" class="fg-img" style="--scale: 0.25; top: 15%; left: 10%;" id="menu">
 </a>
 
-<!-- Other clickable (LinkedIn external) -->
 <a href="https://www.linkedin.com/in/megan-bryson-29373630b/" target="_blank" class="clickable">
     <img src="assets/images/linkedin.png" class="img" style="--scale: 0.3; top: 40%; left: 90%;" id="linkedin">
 </a>
 
-<!-- Other images -->
 <img src="assets/images/chart.png" class="img" style="--scale: 0.25; top: 85%; left: 70%;" id="chart">
 <img src="assets/images/drivers.png" class="img" style="--scale: 0.3; top: 65%; left: 25%;" id="drivers">
 <img src="assets/images/pepto.png" class="img" style="--scale: 0.25; top: 15%; left: 65%;" id="pepto">
@@ -133,47 +129,55 @@
 <img src="assets/images/ttc.png" class="img" style="--scale: 0.25; top: 60%; left: 45%;" id="ttc">
 
 <script>
-    const mobileScale = 1.5;
+const mobileScale = 1.5;
 
-    function resizeMegan() {
-        const megan = document.getElementById('megan');
-        const h = window.innerHeight;
-        const w = window.innerWidth;
+function resizeMegan() {
+    const megan = document.getElementById('megan');
+    const h = window.innerHeight;
+    const w = window.innerWidth;
 
-        let newHeight = Math.min(h * 0.3, w * 0.2);
+    let newHeight = Math.min(h * 0.3, w * 0.2);
+    if (w <= 768) newHeight *= mobileScale;
 
-        if (w <= 768) newHeight *= mobileScale;
+    megan.style.height = `${newHeight}px`;
+}
 
-        megan.style.height = `${newHeight}px`;
-    }
+function adjustPositions() {
+    const megan = document.getElementById('megan');
+    const meganRect = megan.getBoundingClientRect();
+    const fgImages = document.querySelectorAll('.fg-img');
 
-    function adjustPositions() {
-        const megan = document.getElementById('megan');
-        const meganRect = megan.getBoundingClientRect();
-        const fgImages = document.querySelectorAll('.fg-img');
+    fgImages.forEach(img => {
+        const r = img.getBoundingClientRect();
 
-        fgImages.forEach(img => {
-            const r = img.getBoundingClientRect();
-            if (
-                r.left < meganRect.right &&
-                r.right > meganRect.left &&
-                r.top < meganRect.bottom &&
-                r.bottom > meganRect.top
-            ) {
-                img.style.top = `${parseFloat(img.style.top) - 10}%`;
-            }
+        if (
+            r.left < meganRect.right &&
+            r.right > meganRect.left &&
+            r.top < meganRect.bottom &&
+            r.bottom > meganRect.top
+        ) {
+            img.style.top = `${parseFloat(img.style.top) - 10}%`;
+        }
+    });
+}
+
+/* 🔥 FIX: ensure layout is ready BEFORE showing page */
+window.addEventListener('load', () => {
+    resizeMegan();
+    adjustPositions();
+
+    // allow layout to settle
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            document.body.style.opacity = "1";
         });
-    }
-
-    window.addEventListener('load', () => {
-        resizeMegan();
-        adjustPositions();
     });
+});
 
-    window.addEventListener('resize', () => {
-        resizeMegan();
-        adjustPositions();
-    });
+window.addEventListener('resize', () => {
+    resizeMegan();
+    adjustPositions();
+});
 </script>
 
 </body>
