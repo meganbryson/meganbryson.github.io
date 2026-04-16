@@ -28,6 +28,7 @@
         z-index: 1000;
     }
 
+    /* ✅ RESTORED clean top bar sizing */
     .top-bar img {
         height: 80%;
         max-height: 120px;
@@ -54,7 +55,7 @@
     }
 
     .photo:hover {
-        transform: scale(2);
+        transform: scale(1.2);
     }
 </style>
 </head>
@@ -75,10 +76,12 @@
 
 <script>
 const GLOBAL_SIZE_MULTIPLIER = 0.65;
-const EXPAND_SCALE_MULTIPLIER = 0.6;
 
-// 🔥 ONLY MOBILE CONTROL (safe, isolated)
-const MOBILE_EXPAND_MULTIPLIER = 0.55;
+/* =========================
+   EXPAND CONTROL
+   ========================= */
+const DESKTOP_EXPAND_MULTIPLIER = 0.45; // 🔥 SMALLER DESKTOP POPUP
+const MOBILE_EXPAND_MULTIPLIER = 0.55;  // unchanged (as requested)
 
 const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
@@ -112,42 +115,43 @@ function addClickExpand(img, dataObj) {
             y: dataObj.y
         };
 
-        const viewportWidth = window.innerWidth;
-        const viewportHeight = window.innerHeight;
-        const isMobile = viewportWidth <= 768;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const isMobile = vw <= 768;
 
-        const aspectRatio = img.naturalHeight / img.naturalWidth;
-
-        // =========================
-        // DESKTOP (UNCHANGED)
-        // =========================
-        let maxWidth = Math.min(800, viewportWidth * EXPAND_SCALE_MULTIPLIER);
-        let maxHeight = viewportHeight * EXPAND_SCALE_MULTIPLIER;
+        const aspect = img.naturalHeight / img.naturalWidth;
 
         // =========================
-        // MOBILE (ONLY SMALLER LIMIT)
+        // SIZE RULES
         // =========================
+        let maxWidth, maxHeight;
+
         if (isMobile) {
-            maxWidth = viewportWidth * MOBILE_EXPAND_MULTIPLIER;
-            maxHeight = viewportHeight * MOBILE_EXPAND_MULTIPLIER;
+            // 🔥 MOBILE UNCHANGED
+            maxWidth = vw * MOBILE_EXPAND_MULTIPLIER;
+            maxHeight = vh * MOBILE_EXPAND_MULTIPLIER;
+        } else {
+            // 🔥 DESKTOP FIX (smaller than before)
+            maxWidth = vw * DESKTOP_EXPAND_MULTIPLIER;
+            maxHeight = vh * DESKTOP_EXPAND_MULTIPLIER;
         }
 
         let targetWidth = maxWidth;
-        let targetHeight = targetWidth * aspectRatio;
+        let targetHeight = targetWidth * aspect;
 
         if (targetHeight > maxHeight) {
             targetHeight = maxHeight;
-            targetWidth = targetHeight / aspectRatio;
+            targetWidth = targetHeight / aspect;
         }
 
-        // center (same for both)
-        let targetX = (viewportWidth - targetWidth) / 2;
-        let targetY = (viewportHeight - targetHeight) / 2;
+        // center
+        let targetX = (vw - targetWidth) / 2;
+        let targetY = (vh - targetHeight) / 2;
 
-        // safety clamp (does NOT affect desktop feel)
-        const padding = 12;
-        targetX = Math.max(padding, Math.min(targetX, viewportWidth - targetWidth - padding));
-        targetY = Math.max(padding, Math.min(targetY, viewportHeight - targetHeight - padding));
+        // safety clamp
+        const pad = 12;
+        targetX = Math.max(pad, Math.min(targetX, vw - targetWidth - pad));
+        targetY = Math.max(pad, Math.min(targetY, vh - targetHeight - pad));
 
         dataObj.width = targetWidth;
         dataObj.height = targetHeight;
@@ -171,7 +175,6 @@ function addClickExpand(img, dataObj) {
     });
 }
 
-// (rest of your original logic unchanged)
 function getScaledWidth(baseScale, viewportWidth, isMobile) {
     let scale = baseScale * GLOBAL_SIZE_MULTIPLIER;
     if (isMobile) scale *= MOBILE_SCALE_MULTIPLIER;
@@ -179,10 +182,10 @@ function getScaledWidth(baseScale, viewportWidth, isMobile) {
 }
 
 function createPhotos() {
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
-    const isMobile = viewportWidth <= 768;
+    const isMobile = vw <= 768;
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
@@ -193,19 +196,19 @@ function createPhotos() {
         document.body.appendChild(img);
 
         img.onload = () => {
-            const width = getScaledWidth(PHOTO_SCALE, viewportWidth, isMobile);
-            const aspectRatio = img.naturalHeight / img.naturalWidth;
-            const height = width * aspectRatio;
+            const width = getScaledWidth(PHOTO_SCALE, vw, isMobile);
+            const aspect = img.naturalHeight / img.naturalWidth;
+            const height = width * aspect;
 
-            let x = Math.random() * (viewportWidth - width);
-            let y = Math.random() * (viewportHeight - height - topBarHeight) + topBarHeight;
+            let x = Math.random() * (vw - width);
+            let y = Math.random() * (vh - height - topBarHeight) + topBarHeight;
 
             img.style.width = width + "px";
             img.style.height = height + "px";
 
-            const speedMultiplier = 1 + Math.random() * (SPEED_VARIATION - 1);
-            const vx = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
-            const vy = (Math.random() - 0.5) * BASE_SPEED * speedMultiplier;
+            const speedMult = 1 + Math.random() * (SPEED_VARIATION - 1);
+            const vx = (Math.random() - 0.5) * BASE_SPEED * speedMult;
+            const vy = (Math.random() - 0.5) * BASE_SPEED * speedMult;
 
             const obj = { el: img, x, y, width, height, vx, vy };
             photosData.push(obj);
@@ -217,8 +220,8 @@ function createPhotos() {
 
 function animate() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
 
     photosData.forEach(p => {
         if (p.el.dataset.expanded === "true") return;
@@ -226,15 +229,15 @@ function animate() {
         p.x += p.vx;
         p.y += p.vy;
 
-        if (p.x <= 0 || p.x + p.width >= viewportWidth) p.vx *= -1;
+        if (p.x <= 0 || p.x + p.width >= vw) p.vx *= -1;
 
         if (p.y <= topBarHeight) {
             p.y = topBarHeight;
             p.vy *= -1;
         }
 
-        if (p.y + p.height >= viewportHeight) {
-            p.y = viewportHeight - p.height;
+        if (p.y + p.height >= vh) {
+            p.y = vh - p.height;
             p.vy *= -1;
         }
 
