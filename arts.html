@@ -41,15 +41,12 @@
         height: 80%;
     }
 
-    .top-left { order: 1; }
-    .top-right { order: 3; }
-
     .photo {
         position: absolute;
         object-fit: cover;
         border-radius: 4px;
-        z-index: 1;
         cursor: pointer;
+        z-index: 1;
         transition: transform 0.2s ease;
     }
 
@@ -57,32 +54,12 @@
         transform: scale(1.2);
     }
 
-    /* 🔥 HERO OVERRIDE (important fix) */
     .hero-photo {
         z-index: 9999;
     }
 
-    /* 🔥 FORCE EXPANDED IMAGES TO IGNORE CSS CONSTRAINTS */
     .photo[data-expanded="true"] {
-        max-width: none !important;
-        max-height: none !important;
         transform: none !important;
-    }
-
-    /* Mobile adjustments */
-    @media (max-width: 768px) {
-        .top-bar {
-            height: 18vh;
-        }
-
-        .top-bar img {
-            height: 55%;
-            max-height: 80px;
-        }
-
-        .top-center {
-            height: 55%;
-        }
     }
 </style>
 </head>
@@ -103,7 +80,7 @@
 
 <script>
 const DESKTOP_EXPAND = 0.45;
-const MOBILE_EXPAND = 0.75; // slightly larger but stable
+const MOBILE_EXPAND = 0.55;
 
 const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
@@ -121,7 +98,7 @@ function bringToFront(el) {
     el.style.zIndex = topZ;
 }
 
-function addClickExpand(img, dataObj) {
+function addClickExpand(img, obj) {
     img.addEventListener("click", () => {
         if (img.dataset.expanded === "true") return;
 
@@ -130,114 +107,4 @@ function addClickExpand(img, dataObj) {
 
         const vw = window.innerWidth;
         const vh = window.innerHeight;
-        const isMobile = vw <= 768;
-
-        const aspect = img.naturalHeight / img.naturalWidth;
-
-        let maxW = isMobile ? vw * MOBILE_EXPAND : vw * DESKTOP_EXPAND;
-        let maxH = isMobile ? vh * MOBILE_EXPAND : vh * DESKTOP_EXPAND;
-
-        let w = maxW;
-        let h = w * aspect;
-
-        if (h > maxH) {
-            h = maxH;
-            w = h / aspect;
-        }
-
-        let x = (vw - w) / 2;
-        let y = (vh - h) / 2;
-
-        const pad = 12;
-        x = Math.max(pad, Math.min(x, vw - w - pad));
-        y = Math.max(pad, Math.min(y, vh - h - pad));
-
-        dataObj.width = w;
-        dataObj.height = h;
-        dataObj.x = x;
-        dataObj.y = y;
-
-        img.style.width = w + "px";
-        img.style.height = h + "px";
-        img.style.left = x + "px";
-        img.style.top = y + "px";
-
-        setTimeout(() => {
-            img.dataset.expanded = "false";
-        }, 3000);
-    });
-}
-
-function getWidth(scale, vw, isMobile) {
-    return vw * scale;
-}
-
-function createPhotos() {
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
-
-    const isMobile = vw <= 768;
-
-    // ======================
-    // NORMAL PHOTOS
-    // ======================
-    for (let i = 1; i <= TOTAL_PHOTOS; i++) {
-        const img = document.createElement("img");
-        img.src = `assets/images/shots/photo${i}.jpg`;
-        img.className = "photo";
-
-        document.body.appendChild(img);
-
-        img.onload = () => {
-            const w = getWidth(PHOTO_SCALE, vw, isMobile);
-            const h = w * (img.naturalHeight / img.naturalWidth);
-
-            let x = Math.random() * (vw - w);
-            let y = Math.random() * (vh - h - topBarHeight) + topBarHeight;
-
-            img.style.width = w + "px";
-            img.style.height = h + "px";
-
-            const obj = { el: img, x, y, width: w, height: h, vx: 0.3, vy: 0.3 };
-            photosData.push(obj);
-
-            addClickExpand(img, obj);
-        };
-    }
-
-    // ======================
-    // HERO IMAGE (FIXED)
-    // ======================
-    const hero = document.createElement("img");
-    hero.src = `assets/images/shots/text.jpg`;
-    hero.className = "photo hero-photo";
-
-    document.body.appendChild(hero);
-
-    hero.onload = () => {
-        const w = getWidth(HERO_SCALE, vw, isMobile);
-        const h = w * (hero.naturalHeight / hero.naturalWidth);
-
-        const x = (vw - w) / 2;
-        const y = (vh - h) / 2;
-
-        hero.style.width = w + "px";
-        hero.style.height = h + "px";
-        hero.style.left = x + "px";
-        hero.style.top = y + "px";
-
-        hero.style.zIndex = 9999;
-
-        const obj = { el: hero, x, y, width: w, height: h, vx: 0, vy: 0 };
-        photosData.push(obj);
-
-        addClickExpand(hero, obj);
-    };
-}
-
-window.onload = () => createPhotos();
-</script>
-
-</body>
-</html>
+        const
