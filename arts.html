@@ -41,25 +41,20 @@
         height: 80%;
     }
 
+    .top-left { order: 1; }
+    .top-right { order: 3; }
+
     .photo {
         position: absolute;
         object-fit: cover;
         border-radius: 4px;
-        cursor: pointer;
         z-index: 1;
+        cursor: pointer;
         transition: transform 0.2s ease;
     }
 
     .photo:hover {
         transform: scale(1.2);
-    }
-
-    .hero-photo {
-        z-index: 9999;
-    }
-
-    .photo[data-expanded="true"] {
-        transform: none !important;
     }
 </style>
 </head>
@@ -79,8 +74,10 @@
 </div>
 
 <script>
-const DESKTOP_EXPAND = 0.45;
-const MOBILE_EXPAND = 0.55;
+const GLOBAL_SIZE_MULTIPLIER = 0.65;
+
+const DESKTOP_EXPAND_MULTIPLIER = 0.45;
+const MOBILE_EXPAND_MULTIPLIER = 0.55;
 
 const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
@@ -90,6 +87,8 @@ const TOTAL_PHOTOS = 25;
 const BASE_SPEED = 0.3;
 const SPEED_VARIATION = 1.25;
 
+const MOBILE_SCALE_MULTIPLIER = 2.0;
+
 const photosData = [];
 let topZ = 100;
 
@@ -98,12 +97,19 @@ function bringToFront(el) {
     el.style.zIndex = topZ;
 }
 
-function addClickExpand(img, obj) {
+function addClickExpand(img, dataObj) {
     img.addEventListener("click", () => {
         if (img.dataset.expanded === "true") return;
 
         img.dataset.expanded = "true";
         bringToFront(img);
+
+        const original = {
+            width: dataObj.width,
+            height: dataObj.height,
+            x: dataObj.x,
+            y: dataObj.y
+        };
 
         const vw = window.innerWidth;
         const vh = window.innerHeight;
@@ -111,115 +117,138 @@ function addClickExpand(img, obj) {
 
         const aspect = img.naturalHeight / img.naturalWidth;
 
-        let maxW = isMobile ? vw * MOBILE_EXPAND : vw * DESKTOP_EXPAND;
-        let maxH = isMobile ? vh * MOBILE_EXPAND : vh * DESKTOP_EXPAND;
+        const isHero = img.src.includes("text.jpg");
 
-        let w = maxW;
-        let h = w * aspect;
+        let maxWidth, maxHeight;
 
-        if (h > maxH) {
-            h = maxH;
-            w = h / aspect;
+        if (isMobile) {
+
+            // 🔥 FIX: HERO DOES NOT SHRINK ON MOBILE
+            if (isHero) {
+                maxWidth = vw * DESKTOP_EXPAND_MULTIPLIER;
+                maxHeight = vh * DESKTOP_EXPAND_MULTIPLIER;
+            } else {
+                maxWidth = vw * MOBILE_EXPAND_MULTIPLIER;
+                maxHeight = vh * MOBILE_EXPAND_MULTIPLIER;
+            }
+
+        } else {
+            maxWidth = vw * DESKTOP_EXPAND_MULTIPLIER;
+            maxHeight = vh * DESKTOP_EXPAND_MULTIPLIER;
         }
 
-        let x = (vw - w) / 2;
-        let y = (vh - h) / 2;
+        let targetWidth = maxWidth;
+        let targetHeight = targetWidth * aspect;
+
+        if (targetHeight > maxHeight) {
+            targetHeight = maxHeight;
+            targetWidth = targetHeight / aspect;
+        }
+
+        let targetX = (vw - targetWidth) / 2;
+        let targetY = (vh - targetHeight) / 2;
 
         const pad = 12;
-        x = Math.max(pad, Math.min(x, vw - w - pad));
-        y = Math.max(pad, Math.min(y, vh - h - pad));
+        targetX = Math.max(pad, Math.min(targetX, vw - targetWidth - pad));
+        targetY = Math.max(pad, Math.min(targetY, vh - targetHeight - pad));
 
-        obj.width = w;
-        obj.height = h;
-        obj.x = x;
-        obj.y = y;
+        dataObj.width = targetWidth;
+        dataObj.height = targetHeight;
+        dataObj.x = targetX;
+        dataObj.y = targetY;
 
-        img.style.width = w + "px";
-        img.style.height = h + "px";
-        img.style.left = x + "px";
-        img.style.top = y + "px";
+        img.style.width = targetWidth + "px";
+        img.style.height = targetHeight + "px";
 
         setTimeout(() => {
+            dataObj.width = original.width;
+            dataObj.height = original.height;
+            dataObj.x = original.x;
+            dataObj.y = original.y;
+
+            img.style.width = original.width + "px";
+            img.style.height = original.height + "px";
+
             img.dataset.expanded = "false";
         }, 3000);
     });
+}
+
+function getScaledWidth(baseScale, viewportWidth, isMobile) {
+    let scale = baseScale * GLOBAL_SIZE_MULTIPLIER;
+    if (isMobile) scale *= MOBILE_SCALE_MULTIPLIER;
+    return viewportWidth * scale;
 }
 
 function createPhotos() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
+    const isMobile = vw <= 768;
 
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
         img.src = `assets/images/shots/photo${i}.jpg`;
         img.className = "photo";
 
+        img.onerror = () => img.remove();
         document.body.appendChild(img);
 
         img.onload = () => {
-            const w = vw * PHOTO_SCALE;
-            const h = w * (img.naturalHeight / img.naturalWidth);
+            const width = getScaledWidth(PHOTO_SCALE, vw, isMobile);
+            const aspect = img.naturalHeight / img.naturalWidth;
+            const height = width * aspect;
 
-            let x = Math.random() * (vw - w);
-            let y = Math.random() * (vh - h - topBarHeight) + topBarHeight;
+            let x = Math.random() * (vw - width);
+            let y = Math.random() * (vh - height - topBarHeight) + topBarHeight;
 
-            img.style.width = w + "px";
-            img.style.height = h + "px";
-            img.style.left = x + "px";
-            img.style.top = y + "px";
+            img.style.width = width + "px";
+            img.style.height = height + "px";
 
-            const obj = {
-                el: img,
-                x, y,
-                width: w,
-                height: h,
-                vx: (Math.random() - 0.5) * BASE_SPEED,
-                vy: (Math.random() - 0.5) * BASE_SPEED
-            };
+            const speedMult = 1 + Math.random() * (SPEED_VARIATION - 1);
+            const vx = (Math.random() - 0.5) * BASE_SPEED * speedMult;
+            const vy = (Math.random() - 0.5) * BASE_SPEED * speedMult;
 
+            const obj = { el: img, x, y, width, height, vx, vy };
             photosData.push(obj);
+
             addClickExpand(img, obj);
         };
     }
 
-    // HERO (RESTORED + SAFE)
     const hero = document.createElement("img");
-    hero.src = "assets/images/shots/text.jpg";
-    hero.className = "photo hero-photo";
+    hero.src = `assets/images/shots/text.jpg`;
+    hero.className = "photo";
 
+    hero.onerror = () => hero.remove();
     document.body.appendChild(hero);
 
     hero.onload = () => {
-        const w = vw * HERO_SCALE;
-        const h = w * (hero.naturalHeight / hero.naturalWidth);
+        const width = getScaledWidth(HERO_SCALE, vw, isMobile);
+        const aspect = hero.naturalHeight / hero.naturalWidth;
+        const height = width * aspect;
 
-        const x = (vw - w) / 2;
-        const y = (vh - h) / 2;
+        let x = (vw - width) / 2;
+        let y = (vh - height) / 2;
 
-        hero.style.width = w + "px";
-        hero.style.height = h + "px";
-        hero.style.left = x + "px";
-        hero.style.top = y + "px";
+        hero.style.width = width + "px";
+        hero.style.height = height + "px";
+        hero.style.zIndex = 9999;
 
-        const obj = {
-            el: hero,
-            x, y,
-            width: w,
-            height: h,
-            vx: 0,
-            vy: 0
-        };
+        const vx = (Math.random() - 0.5) * BASE_SPEED;
+        const vy = (Math.random() - 0.5) * BASE_SPEED;
 
+        const obj = { el: hero, x, y, width, height, vx, vy };
         photosData.push(obj);
+
         addClickExpand(hero, obj);
     };
 }
 
 function animate() {
+    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const vw = window.innerWidth;
     const vh = window.innerHeight;
-    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
 
     photosData.forEach(p => {
         if (p.el.dataset.expanded === "true") return;
@@ -248,7 +277,7 @@ function animate() {
 
 window.onload = () => {
     createPhotos();
-    requestAnimationFrame(animate);
+    setTimeout(animate, 100);
 };
 </script>
 
