@@ -55,6 +55,7 @@
 
     .photo:hover {
         transform: scale(1.2);
+        z-index: 9999;
     }
      /* Mobile adjustments */
     @media (max-width: 768px) {
@@ -250,7 +251,7 @@ function createPhotos() {
 
         hero.style.width = width + "px";
         hero.style.height = height + "px";
-        hero.style.zIndex = 9999; // 🔥 always on top
+        hero.style.zIndex = 9998; // 🔥 always on top
 
         const vx = (Math.random() - 0.5) * BASE_SPEED;
         const vy = (Math.random() - 0.5) * BASE_SPEED;
