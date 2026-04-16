@@ -56,6 +56,28 @@
     .photo:hover {
         transform: scale(1.2);
     }
+
+     /* Mobile adjustments */
+    @media (max-width: 768px) {
+        .top-bar {
+            height: 18vh;
+        }
+
+        /* 🔽 Make images smaller on mobile */
+        .top-bar img {
+            height: 55%;        /* smaller than before */
+            max-height: 80px;   /* cap size */
+        }
+
+        .top-center {
+            height: 55%; /* keep center consistent */
+        }
+
+        .content {
+            width: 90%;
+            font-size: calc(14px + 1vw);
+        }
+    }
 </style>
 </head>
 
