@@ -25,16 +25,15 @@
         align-items: center;
         padding: 0 2vw;
         box-sizing: border-box;
+        z-index: 1000;
     }
 
-    /* Images in top bar */
     .top-bar img {
         height: 80%;
         max-height: 120px;
         object-fit: contain;
     }
 
-    /* Center image in top bar */
     .top-center {
         position: absolute;
         left: 50%;
@@ -42,13 +41,8 @@
         height: 80%;
     }
 
-    .top-left {
-        order: 1;
-    }
-
-    .top-right {
-        order: 3;
-    }
+    .top-left { order: 1; }
+    .top-right { order: 3; }
 
     .photo {
         position: absolute;
@@ -60,7 +54,7 @@
     }
 
     .photo:hover {
-        transform: scale(1.3);
+        transform: scale(1.2);
     }
 </style>
 </head>
@@ -82,11 +76,8 @@
 <script>
 const GLOBAL_SIZE_MULTIPLIER = 0.65;
 
-/* =========================
-   EXPAND CONTROL
-   ========================= */
-const DESKTOP_EXPAND_MULTIPLIER = 0.45; // 🔥 SMALLER DESKTOP POPUP
-const MOBILE_EXPAND_MULTIPLIER = 0.55;  // unchanged (as requested)
+const DESKTOP_EXPAND_MULTIPLIER = 0.45;
+const MOBILE_EXPAND_MULTIPLIER = 0.55;
 
 const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
@@ -126,17 +117,12 @@ function addClickExpand(img, dataObj) {
 
         const aspect = img.naturalHeight / img.naturalWidth;
 
-        // =========================
-        // SIZE RULES
-        // =========================
         let maxWidth, maxHeight;
 
         if (isMobile) {
-            // 🔥 MOBILE UNCHANGED
             maxWidth = vw * MOBILE_EXPAND_MULTIPLIER;
             maxHeight = vh * MOBILE_EXPAND_MULTIPLIER;
         } else {
-            // 🔥 DESKTOP FIX (smaller than before)
             maxWidth = vw * DESKTOP_EXPAND_MULTIPLIER;
             maxHeight = vh * DESKTOP_EXPAND_MULTIPLIER;
         }
@@ -149,11 +135,9 @@ function addClickExpand(img, dataObj) {
             targetWidth = targetHeight / aspect;
         }
 
-        // center
         let targetX = (vw - targetWidth) / 2;
         let targetY = (vh - targetHeight) / 2;
 
-        // safety clamp
         const pad = 12;
         targetX = Math.max(pad, Math.min(targetX, vw - targetWidth - pad));
         targetY = Math.max(pad, Math.min(targetY, vh - targetHeight - pad));
@@ -192,6 +176,9 @@ function createPhotos() {
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
     const isMobile = vw <= 768;
 
+    // =========================
+    // REGULAR PHOTOS
+    // =========================
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
         img.src = `assets/images/shots/photo${i}.jpg`;
@@ -221,6 +208,37 @@ function createPhotos() {
             addClickExpand(img, obj);
         };
     }
+
+    // =========================
+    // HERO IMAGE (RESTORED)
+    // =========================
+    const hero = document.createElement("img");
+    hero.src = `assets/images/shots/text.jpg`;
+    hero.className = "photo";
+
+    hero.onerror = () => hero.remove();
+    document.body.appendChild(hero);
+
+    hero.onload = () => {
+        const width = getScaledWidth(HERO_SCALE, vw, isMobile);
+        const aspect = hero.naturalHeight / hero.naturalWidth;
+        const height = width * aspect;
+
+        let x = (vw - width) / 2;
+        let y = (vh - height) / 2;
+
+        hero.style.width = width + "px";
+        hero.style.height = height + "px";
+        hero.style.zIndex = 9999; // 🔥 always on top
+
+        const vx = (Math.random() - 0.5) * BASE_SPEED;
+        const vy = (Math.random() - 0.5) * BASE_SPEED;
+
+        const obj = { el: hero, x, y, width, height, vx, vy };
+        photosData.push(obj);
+
+        addClickExpand(hero, obj);
+    };
 }
 
 function animate() {
