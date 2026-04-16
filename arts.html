@@ -55,27 +55,33 @@
 
     .photo:hover {
         transform: scale(1.2);
+    }
+
+    /* 🔥 HERO OVERRIDE (important fix) */
+    .hero-photo {
         z-index: 9999;
     }
-     /* Mobile adjustments */
+
+    /* 🔥 FORCE EXPANDED IMAGES TO IGNORE CSS CONSTRAINTS */
+    .photo[data-expanded="true"] {
+        max-width: none !important;
+        max-height: none !important;
+        transform: none !important;
+    }
+
+    /* Mobile adjustments */
     @media (max-width: 768px) {
         .top-bar {
             height: 18vh;
         }
 
-        /* 🔽 Make images smaller on mobile */
         .top-bar img {
-            height: 55%;        /* smaller than before */
-            max-height: 80px;   /* cap size */
+            height: 55%;
+            max-height: 80px;
         }
 
         .top-center {
-            height: 55%; /* keep center consistent */
-        }
-
-        .content {
-            width: 90%;
-            font-size: calc(14px + 1vw);
+            height: 55%;
         }
     }
 </style>
@@ -96,10 +102,8 @@
 </div>
 
 <script>
-const GLOBAL_SIZE_MULTIPLIER = 0.65;
-
-const DESKTOP_EXPAND_MULTIPLIER = 0.45;
-const MOBILE_EXPAND_MULTIPLIER = 0.30;
+const DESKTOP_EXPAND = 0.45;
+const MOBILE_EXPAND = 0.75; // slightly larger but stable
 
 const PHOTO_SCALE = 0.18;
 const HERO_SCALE = 0.35;
@@ -108,8 +112,6 @@ const TOTAL_PHOTOS = 25;
 
 const BASE_SPEED = 0.3;
 const SPEED_VARIATION = 1.25;
-
-const MOBILE_SCALE_MULTIPLIER = 2.0;
 
 const photosData = [];
 let topZ = 100;
@@ -126,177 +128,115 @@ function addClickExpand(img, dataObj) {
         img.dataset.expanded = "true";
         bringToFront(img);
 
-        const original = {
-            width: dataObj.width,
-            height: dataObj.height,
-            x: dataObj.x,
-            y: dataObj.y
-        };
-
         const vw = window.innerWidth;
         const vh = window.innerHeight;
         const isMobile = vw <= 768;
 
         const aspect = img.naturalHeight / img.naturalWidth;
 
-        let maxWidth, maxHeight;
+        let maxW = isMobile ? vw * MOBILE_EXPAND : vw * DESKTOP_EXPAND;
+        let maxH = isMobile ? vh * MOBILE_EXPAND : vh * DESKTOP_EXPAND;
 
-        if (isMobile) {
-            maxWidth = vw * MOBILE_EXPAND_MULTIPLIER;
-            maxHeight = vh * MOBILE_EXPAND_MULTIPLIER;
-        } else {
-            maxWidth = vw * DESKTOP_EXPAND_MULTIPLIER;
-            maxHeight = vh * DESKTOP_EXPAND_MULTIPLIER;
+        let w = maxW;
+        let h = w * aspect;
+
+        if (h > maxH) {
+            h = maxH;
+            w = h / aspect;
         }
 
-        let targetWidth = maxWidth;
-        let targetHeight = targetWidth * aspect;
-
-        if (targetHeight > maxHeight) {
-            targetHeight = maxHeight;
-            targetWidth = targetHeight / aspect;
-        }
-
-        let targetX = (vw - targetWidth) / 2;
-        let targetY = (vh - targetHeight) / 2;
+        let x = (vw - w) / 2;
+        let y = (vh - h) / 2;
 
         const pad = 12;
-        targetX = Math.max(pad, Math.min(targetX, vw - targetWidth - pad));
-        targetY = Math.max(pad, Math.min(targetY, vh - targetHeight - pad));
+        x = Math.max(pad, Math.min(x, vw - w - pad));
+        y = Math.max(pad, Math.min(y, vh - h - pad));
 
-        dataObj.width = targetWidth;
-        dataObj.height = targetHeight;
-        dataObj.x = targetX;
-        dataObj.y = targetY;
+        dataObj.width = w;
+        dataObj.height = h;
+        dataObj.x = x;
+        dataObj.y = y;
 
-        img.style.width = targetWidth + "px";
-        img.style.height = targetHeight + "px";
+        img.style.width = w + "px";
+        img.style.height = h + "px";
+        img.style.left = x + "px";
+        img.style.top = y + "px";
 
         setTimeout(() => {
-            dataObj.width = original.width;
-            dataObj.height = original.height;
-            dataObj.x = original.x;
-            dataObj.y = original.y;
-
-            img.style.width = original.width + "px";
-            img.style.height = original.height + "px";
-
             img.dataset.expanded = "false";
         }, 3000);
     });
 }
 
-function getScaledWidth(baseScale, viewportWidth, isMobile) {
-    let scale = baseScale * GLOBAL_SIZE_MULTIPLIER;
-    if (isMobile) scale *= MOBILE_SCALE_MULTIPLIER;
-    return viewportWidth * scale;
+function getWidth(scale, vw, isMobile) {
+    return vw * scale;
 }
 
 function createPhotos() {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const topBarHeight = document.querySelector(".top-bar").offsetHeight;
+
     const isMobile = vw <= 768;
 
-    // =========================
-    // REGULAR PHOTOS
-    // =========================
+    // ======================
+    // NORMAL PHOTOS
+    // ======================
     for (let i = 1; i <= TOTAL_PHOTOS; i++) {
         const img = document.createElement("img");
         img.src = `assets/images/shots/photo${i}.jpg`;
         img.className = "photo";
 
-        img.onerror = () => img.remove();
         document.body.appendChild(img);
 
         img.onload = () => {
-            const width = getScaledWidth(PHOTO_SCALE, vw, isMobile);
-            const aspect = img.naturalHeight / img.naturalWidth;
-            const height = width * aspect;
+            const w = getWidth(PHOTO_SCALE, vw, isMobile);
+            const h = w * (img.naturalHeight / img.naturalWidth);
 
-            let x = Math.random() * (vw - width);
-            let y = Math.random() * (vh - height - topBarHeight) + topBarHeight;
+            let x = Math.random() * (vw - w);
+            let y = Math.random() * (vh - h - topBarHeight) + topBarHeight;
 
-            img.style.width = width + "px";
-            img.style.height = height + "px";
+            img.style.width = w + "px";
+            img.style.height = h + "px";
 
-            const speedMult = 1 + Math.random() * (SPEED_VARIATION - 1);
-            const vx = (Math.random() - 0.5) * BASE_SPEED * speedMult;
-            const vy = (Math.random() - 0.5) * BASE_SPEED * speedMult;
-
-            const obj = { el: img, x, y, width, height, vx, vy };
+            const obj = { el: img, x, y, width: w, height: h, vx: 0.3, vy: 0.3 };
             photosData.push(obj);
 
             addClickExpand(img, obj);
         };
     }
 
-    // =========================
-    // HERO IMAGE (RESTORED)
-    // =========================
+    // ======================
+    // HERO IMAGE (FIXED)
+    // ======================
     const hero = document.createElement("img");
     hero.src = `assets/images/shots/text.jpg`;
-    hero.className = "photo";
+    hero.className = "photo hero-photo";
 
-    hero.onerror = () => hero.remove();
     document.body.appendChild(hero);
 
     hero.onload = () => {
-        const width = getScaledWidth(HERO_SCALE, vw, isMobile);
-        const aspect = hero.naturalHeight / hero.naturalWidth;
-        const height = width * aspect;
+        const w = getWidth(HERO_SCALE, vw, isMobile);
+        const h = w * (hero.naturalHeight / hero.naturalWidth);
 
-        let x = (vw - width) / 2;
-        let y = (vh - height) / 2;
+        const x = (vw - w) / 2;
+        const y = (vh - h) / 2;
 
-        hero.style.width = width + "px";
-        hero.style.height = height + "px";
-        hero.style.zIndex = 9998; // 🔥 always on top
+        hero.style.width = w + "px";
+        hero.style.height = h + "px";
+        hero.style.left = x + "px";
+        hero.style.top = y + "px";
 
-        const vx = (Math.random() - 0.5) * BASE_SPEED;
-        const vy = (Math.random() - 0.5) * BASE_SPEED;
+        hero.style.zIndex = 9999;
 
-        const obj = { el: hero, x, y, width, height, vx, vy };
+        const obj = { el: hero, x, y, width: w, height: h, vx: 0, vy: 0 };
         photosData.push(obj);
 
         addClickExpand(hero, obj);
     };
 }
 
-function animate() {
-    const topBarHeight = document.querySelector(".top-bar").offsetHeight;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-
-    photosData.forEach(p => {
-        if (p.el.dataset.expanded === "true") return;
-
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x <= 0 || p.x + p.width >= vw) p.vx *= -1;
-
-        if (p.y <= topBarHeight) {
-            p.y = topBarHeight;
-            p.vy *= -1;
-        }
-
-        if (p.y + p.height >= vh) {
-            p.y = vh - p.height;
-            p.vy *= -1;
-        }
-
-        p.el.style.left = p.x + "px";
-        p.el.style.top = p.y + "px";
-    });
-
-    requestAnimationFrame(animate);
-}
-
-window.onload = () => {
-    createPhotos();
-    setTimeout(animate, 100);
-};
+window.onload = () => createPhotos();
 </script>
 
 </body>
